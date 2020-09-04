@@ -1,0 +1,26 @@
+class classDatos {
+
+  public:
+    double HumedadAmbiente = 0;
+    double TemperaturaAmbiente = 0 ;
+    double PresionAmbiente = 0;
+    double HumedadSuelo1 = 0 ;
+    double HumedadSuelo2 = 0 ;
+    int Anio = 0 ;
+    int Mes = 0 ;
+    int Dia = 0 ;
+    int Hora = 0 ;
+    int Minuto = 0 ;
+    int Segundo = 0 ;
+    int Riego1Segundos = 0 ;
+    int Riego2Segundos = 0 ;
+
+    int32_t PresionHoras[5];
+    int32_t PresionDias[5];
+    int32_t TemperaturaHoras[5];
+    int32_t TemperaturaDias[5];
+
+  private:
+
+
+};
