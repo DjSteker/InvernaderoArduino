@@ -1,0 +1,531 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+
+#include "classDatos.h"
+extern classDatos ArchivoDatos;
+
+
+
+#include "Servidor.h"
+//#include "Sensores.h"
+
+#ifndef STASSID
+#define STASSID "Neurotron"
+#define STAPSK  "Caperuzo001"
+#endif
+
+const char* ssid     = STASSID;
+const char* password = STAPSK;
+
+//ESP8266WebServer server(80);
+
+
+// Variable to store the HTTP request
+String header;
+
+
+float temperature, humidity, pressure, altitude = 700;
+float Presion[5], Temperatura[5];
+bool SetParametros = false;
+
+String FechaHTML = "";
+
+
+float PrediccionPression;
+
+String ArchivoTexto = "";
+
+int Riego1Segundos = 0;
+int Riego2Segundos = 0;
+int Riego1ServerGet() {
+  int var = Riego1Segundos;
+  Riego1Segundos = 0;
+  return var;
+}
+int Riego2ServerGet() {
+  int var = Riego2Segundos;
+  Riego2Segundos = 0;
+  return var;
+}
+
+
+const String postForms = "<html>\
+  <head>\
+    <title>ESP8266 Web Server POST handling</title>\
+    <style>\
+      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
+    </style>\
+  </head>\
+  <body>\
+    <h1>POST plain text to /postplain/</h1><br>\
+    <form method=\"post\" enctype=\"text/plain\" action=\"/postplain/\">\
+      <input type=\"text\" name=\'{\"Configuracion\": \"world\", \"trash\": \"\' value=\"0\"\'\"}\'><br>\
+      <input type=\"submit\" value=\"Submit\">\
+      <input type=\"text\" name=\'{\"Regar\": \"sensores\", \"segundos\": \"\' value=\"0\"\'\"}\'><br>\
+      <input type=\"submit\" value=\"Submit\">\
+    </form>\
+    <h1>Posicion</h1><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/geoposicion/\">\
+      Altura en metros <input type=\"text\" name=\"Altura\" value=\"700\"><br>\
+      <input type=\"submit\" value=\"Submit\">\
+     </form>\
+     <h1>Historial</h1><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/historial/\"><table>\
+      <tr><td>presion hace 1 hora <input type=\"text\" name=\"presion1\" value=\"0\"><br></td>\
+      <td>presion hace 2 hora <input type=\"text\" name=\"presion2\" value=\"0\"><br></td>\
+      <td>presion hace 3 hora <input type=\"text\" name=\"presion3\" value=\"0\"><br></td>\
+      <td>presion hace 4 hora <input type=\"text\" name=\"presion4\" value=\"0\"><br></td>\
+      <td>presion hace 5 hora <input type=\"text\" name=\"presion5\" value=\"0\"><br></td></tr>\
+      <tr><td>temperatura hace 1 hora <input type=\"text\" name=\"temperatura1\" value=\"0\"><br></td>\
+      <td>temperatura hace 2 hora <input type=\"text\" name=\"temperatura2\" value=\"0\"><br></td>\
+      <td>temperatura hace 3 hora <input type=\"text\" name=\"temperatura3\" value=\"0\"><br></td>\
+      <td>temperatura hace 4 hora <input type=\"text\" name=\"temperatura4\" value=\"0\"><br></td>\
+      <td>temperatura hace 5 hora <input type=\"text\" name=\"temperatura5\" value=\"0\"><br></td></tr>\
+      </table><input type=\"submit\" value=\"Submit\">\
+     </form>\
+    <h1>Riego</h1><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/postform/\">\
+      Purga suelo 1 = <input type=\"text\" name=\"Purga1\" value=\"0\"><br>\
+      Purga suelo 1 = <input type=\"text\" name=\"Purga2\" value=\"0\"><br>\
+      Riego suelo 1 = <input type=\"text\" name=\"Riego1\" value=\"0\"><br>\
+      Riego suelo 2 = <input type=\"text\" name=\"Riego2\" value=\"0\"><br>\
+      <input type=\"submit\" value=\"Submit\">\
+     </form>\
+    <h1>Sensores /postform/</h1><br>\
+    <form method=\"post\" enctype=\"text/plain\" action=\"/sensores/\">\
+      <input type=\"text\" name=\"sensores\" value=\"todos\"><br>\
+      <input type=\"submit\" value=\"Submit\">\
+      <a type=\"submit\" href=\"/texto\">- SD -</a>\
+    </form>\
+  </body>\
+</html>";
+
+
+void setup_Server() {
+  //pinMode(led, OUTPUT);
+  //digitalWrite(led, 0);
+  WiFi.begin(ssid, password);
+  Serial.println("");
+  int Intentoscontador = 0;
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    Intentoscontador++;
+    if (Intentoscontador > 10)
+    {
+      Serial.print("Configuring access point...");
+      WiFi.softAP(ssid, password);
+      IPAddress myIP = WiFi.softAPIP();
+      Serial.print("AP IP address: ");
+      Serial.println(myIP);
+      break;
+    }
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  if (MDNS.begin("esp8266")) {
+    Serial.println("MDNS responder started");
+  }
+
+  server.on("/", handleRoot);
+  server.on("/postplain/", handlePlain);
+  server.on("/postform/", handleForm);
+  server.on("/sensores/", handle_OnConnect);
+  server.on("/prediccion", handleForm);
+  server.on("/texto", handle_SD);
+  server.on("/geoposicion/", handle_geoposicion);
+  server.on("/historial/", handle_Historial);
+  server.onNotFound(handleNotFound);
+
+  server.begin();
+  Serial.println("HTTP server started");
+
+}
+
+void loopServer() {
+  server.handleClient();
+  //handleClient();
+
+}
+
+void handleRoot() {
+  //  digitalWrite(led, 1);
+  server.send(200, "text/html", postForms);
+  //send(200, "text/html", postForms);
+  // digitalWrite(led, 0);
+}
+
+void handlePlain() {
+  if (server.method() != HTTP_POST) {
+    //digitalWrite(led, 1);
+    server.send(405, "text/plain", "Method Not Allowed");
+    //digitalWrite(led, 0);
+  } else {
+    //digitalWrite(led, 1);
+
+    String message = "FOR :\n";
+    for (uint8_t i = 0; i < server.args(); i++) {
+      message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+      message += " server.argName(i)= " + server.argName(i) + "\n";
+      message += " server.arg(i)= " + server.arg(i) + "\n";
+      //message += " server.arg(i)= " + server.value(i) + "\n";
+      if ( server.argName(i) == "\"segundos\"") {
+        //Regar1Tiempo = (server.arg(i).toInt());
+        message += "Regando1 " + server.arg(i) + " segundos. \n";
+      }
+
+    }
+    server.send(200, "text/plain", "POST body was:\n" + server.arg("plain") + "\n" + message);
+  }
+
+  //digitalWrite(led, 0);
+}
+
+//  if (method() != HTTP_POST) {
+//    digitalWrite(led, 1);
+//    send(405, "text/plain", "Method Not Allowed");
+//    digitalWrite(led, 0);
+//  } else {
+//    digitalWrite(led, 1);
+//    send(200, "text/plain", "POST body was:\n" + arg("plain"));
+//    digitalWrite(led, 0);
+//  }
+//}
+
+void handleForm() {
+  if (server.method() != HTTP_POST) {
+    //digitalWrite(led, 1);
+    server.send(405, "text/plain", "Method Not Allowed");
+    //digitalWrite(led, 0);
+  } else {
+    //digitalWrite(led, 1);
+    String message = "POST form was:\n";
+    for (uint8_t i = 0; i < server.args(); i++) {
+      message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+      if ( server.argName(i) == "Riego1") {
+        Riego1Segundos = (server.arg(i).toInt());
+        message += "Regando1 " + server.arg(i) + " segundos. \n";
+      }
+      if ( server.argName(i) == "Riego2") {
+        Riego2Segundos = (server.arg(i).toInt());
+        message += "Regando2 " + server.arg(i) + " segundos. \n";
+      }
+      if ( server.argName(i) == "Purga1") {
+        Riego2Segundos = (server.arg(i).toInt());
+        message += "Regando2 " + server.arg(i) + " segundos. \n";
+      }
+      if ( server.argName(i) == "Purga2") {
+        Riego2Segundos = (server.arg(i).toInt());
+        message += "Regando2 " + server.arg(i) + " segundos. \n";
+      }
+
+    }
+    server.send(200, "text/plain", message + " " + postForms);
+    //digitalWrite(led, 0);
+  }
+
+  //  if (method() != HTTP_POST) {
+  //    digitalWrite(led, 1);
+  //    send(405, "text/plain", "Method Not Allowed");
+  //    digitalWrite(led, 0);
+  //  } else {
+  //    digitalWrite(led, 1);
+  //    String message = "POST form was:\n";
+  //    for (uint8_t i = 0; i < args(); i++) {
+  //      message += " " + argName(i) + ": " + arg(i) + "\n";
+  //    }
+  //    send(200, "text/plain", message);
+  //    digitalWrite(led, 0);
+  //  }
+}
+
+void handleNotFound() {
+  //digitalWrite(led, 1);
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i = 0; i < server.args(); i++) {
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+  server.send(404, "text/plain", message);
+  //digitalWrite(led, 0);
+
+
+  //  digitalWrite(led, 1);
+  //  String message = "File Not Found\n\n";
+  //  message += "URI: ";
+  //  message += uri();
+  //  message += "\nMethod: ";
+  //  message += (method() == HTTP_GET) ? "GET" : "POST";
+  //  message += "\nArguments: ";
+  //  message += args();
+  //  message += "\n";
+  //  for (uint8_t i = 0; i < args(); i++) {
+  //    message += " " + argName(i) + ": " + arg(i) + "\n";
+  //  }
+  //  send(404, "text/plain", message);
+  //  digitalWrite(led, 0);
+}
+
+void handle_OnConnect() {
+  server.send(200, "text/html", SendHTML(temperature, humidity, pressure, altitude, FechaHTML));
+}
+
+void handle_SD() {
+  server.send(200, "text/html", SendHTML_SD());
+}
+
+void handle_geoposicion() {
+  if (server.method() != HTTP_POST) {
+    //digitalWrite(led, 1);
+    server.send(405, "text/plain", "Method Not Allowed");
+    //digitalWrite(led, 0);
+  } else {
+    //digitalWrite(led, 1);
+    String message = "POST form was:\n";
+    for (uint8_t i = 0; i < server.args(); i++) {
+      message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+      if ( server.argName(i) == "Altura") {
+        altitude = (server.arg(i).toInt());
+        message += "Altura " + server.arg(i) + " metros. \n";
+      }
+
+
+    }
+    server.send(200, "text/plain", message + " " + postForms);
+  }
+  server.send(200, "text/html", postForms);
+
+}
+
+void handle_Historial() {
+  if (server.method() != HTTP_POST) {
+    //digitalWrite(led, 1);
+    server.send(405, "text/plain", "Method Not Allowed");
+    //digitalWrite(led, 0);
+  } else {
+    //digitalWrite(led, 1);
+    for (uint8_t i = 0; i < server.args(); i++) {
+      if ( server.arg(i) != 0) {
+        SetParametros = true;
+        if (server.argName(i) == "presion1") {
+          ArchivoDatos.PresionHoras[1] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "presion2") {
+          ArchivoDatos.PresionHoras[2] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "presion3") {
+          ArchivoDatos.PresionHoras[3] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "presion4") {
+          ArchivoDatos.PresionHoras[4] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "presion5") {
+          ArchivoDatos.PresionHoras[5] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "temperatura1") {
+          ArchivoDatos.TemperaturaHoras[1] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "temperatura2") {
+          ArchivoDatos.TemperaturaHoras[2] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "temperatura3") {
+          ArchivoDatos.TemperaturaHoras[3] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "temperatura4") {
+          ArchivoDatos.TemperaturaHoras[4] = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "temperatura5") {
+          ArchivoDatos.TemperaturaHoras[5] = server.arg(i).toFloat();
+        }
+      }
+    }
+  }
+  server.send(200, "text/html", SendHTML(temperature, humidity, pressure, altitude, FechaHTML));
+
+}
+
+void SetParametrosHtml(float temperature_var, float humidity_var, float pressure_var, float Tempetura_var[5], float Presion_var[5], String FechaHtml_var) {
+  temperature = temperature_var;
+  humidity = humidity_var;
+  pressure =  pressure_var;
+  FechaHTML = FechaHtml_var;
+  //  Presion = Presion_var;
+  //  Temperatura = Tempetura_var;
+}
+
+String SendHTML(float temperature, float humidity, float pressure, float altitude, String FechaHtml) {
+  String ptr = "<!DOCTYPE html> <html>\n";
+  ptr += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
+  ptr += "<title>ESP8266 Weather Station</title>\n";
+  ptr += "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
+  ptr += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;}\n";
+  ptr += "p {font-size: 24px;color: #444444;margin-bottom: 10px;}\n";
+  ptr += "</style>\n";
+  ptr += "</head>\n";
+  ptr += "<body>\n";
+  ptr += "<div id=\"webpage\">\n";
+  ptr += "<h1>ESP8266 Weather Station</h1>\n";
+  ptr += "<p>fecha ";
+  ptr += FechaHtml;
+  ptr += "</p>";
+  ptr += "<p>Temperature: ";
+  ptr += temperature;
+  ptr += "ºC</p>";
+  ptr += "<p>Humidity: ";
+  ptr += humidity;
+  ptr += "%</p>";
+  ptr += "<p>Pressure: ";
+  ptr += pressure / 100;
+  ptr += "hPa</p>";
+  ptr += "<p>Altitude: ";
+  ptr += altitude;
+  ptr += " m</p><p>  Presion a ";
+  double PresionAltura = (pressure + (9.8 * 1.225 * altitude)) / 100;
+  // ( Pa - Pa ) / ( 9.8 * 1.225 )
+  ptr += PresionAltura;
+  ptr += " hPa</p>";
+  ptr += "<p>";
+  if (PrediccionPression < 0) {
+    ptr += " BORRASCA ";
+  } else {
+    ptr += " ANTICICLON ";
+  }
+  ptr += PrediccionPression;
+  ptr += "</p>";
+
+  ptr += "<p><table>";
+  ptr += "  <tr>";
+  ptr += "   <td>-1h</td>";
+  ptr += "   <td>-2h</td>";
+  ptr += "   <td>-3h</td>";
+  ptr += "   <td>-4h</td>";
+  ptr += "   <td>-5h</td>";
+  ptr += "  </tr>";
+  ptr += "  <tr>";
+  ptr += "   <td>" ;
+  ptr += ArchivoDatos.PresionHoras[1] ;
+  ptr += "hPa</td>";
+  ptr += "    <td>" ;
+  ptr += ArchivoDatos.PresionHoras[2] ;
+  ptr += "hPa</td>";
+  ptr += "    <td>" ;
+  ptr += ArchivoDatos.PresionHoras[3] ;
+  ptr += "hPa</td>";
+  ptr += "   <td>" ;
+  ptr += ArchivoDatos.PresionHoras[4] ;
+  ptr += "hPa</td>";
+  ptr += "   <td>";
+  ptr +=  ArchivoDatos.PresionHoras[5];
+  ptr += "hPa</td>";
+  ptr += "  </tr>";
+  ptr += "  <tr>";
+  ptr += "   <td>";
+  ptr += ArchivoDatos.TemperaturaHoras[1];
+  ptr += "</td>";
+  ptr += "   <td>";
+  ptr += ArchivoDatos.TemperaturaHoras[2];
+  ptr += "</td>";
+  ptr += "   <td>";
+  ptr += ArchivoDatos.TemperaturaHoras[3];
+  ptr += "</td>";
+  ptr += "   <td>";
+  ptr += ArchivoDatos.TemperaturaHoras[4];
+  ptr += "</td>";
+  ptr += "   <td>";
+  ptr += ArchivoDatos.TemperaturaHoras[5];
+  ptr += "</td>";
+  ptr += "  </tr>";
+  ptr += "</table></p>";
+  ptr += "</div>\n";
+  ptr += "</body>\n";
+  ptr += "</html>\n";
+  return ptr;
+}
+
+
+String SendHTML_SD() {
+  String FechaActualSend = String(ArchivoDatos.Anio) + " / " + String(ArchivoDatos.Mes) + " / " + String(ArchivoDatos.Dia) + " / " + String(ArchivoDatos.Hora) + " : " + String(ArchivoDatos.Minuto) + " : " + String(ArchivoDatos.Segundo)  ;
+
+  String ptr = "<!DOCTYPE html> <html>\n";
+  ptr += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
+  ptr += "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,400,600\" rel=\"stylesheet\">\n";
+  ptr += "<title>ESP8266 Weather Report</title>\n";
+  ptr += "<style>html { font-family: 'Open Sans', sans-serif; display: block; margin: 0px auto; text-align: center;color: #333333;}\n";
+  ptr += "body{margin-top: 50px;}\n";
+  ptr += "h1 {margin: 50px auto 30px;}\n";
+  ptr += ".side-by-side{display: inline-block;vertical-align: middle;position: relative;}\n";
+  ptr += ".humidity-icon{background-color: #3498db;width: 30px;height: 30px;border-radius: 50%;line-height: 36px;}\n";
+  ptr += ".humidity-text{font-weight: 600;padding-left: 15px;font-size: 19px;width: 160px;text-align: left;}\n";
+  ptr += ".humidity{font-weight: 300;font-size: 60px;color: #3498db;}\n";
+  ptr += ".temperature-icon{background-color: #f39c12;width: 30px;height: 30px;border-radius: 50%;line-height: 40px;}\n";
+  ptr += ".temperature-text{font-weight: 600;padding-left: 15px;font-size: 19px;width: 160px;text-align: left;}\n";
+  ptr += ".temperature{font-weight: 300;font-size: 60px;color: #f39c12;}\n";
+  ptr += ".superscript{font-size: 17px;font-weight: 600;position: absolute;right: -20px;top: 15px;}\n";
+  ptr += ".data{padding: 10px;}\n";
+  ptr += "</style>\n";
+  ptr += "</head>\n";
+  ptr += "<body>\n";
+
+  ptr += "<div id=\"webpage\">\n";
+
+  ptr += "<h1>ESP8266 Weather Report</h1>\n";
+  ptr += FechaActualSend;
+  ptr += "<br>";
+  ptr += "<div class=\"data\">\n";
+  ptr += "<div class=\"side-by-side temperature-icon\">\n";
+  ptr += "<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n";
+  ptr += "width=\"9.915px\" height=\"22px\" viewBox=\"0 0 9.915 22\" enable-background=\"new 0 0 9.915 22\" xml:space=\"preserve\">\n";
+  ptr += "<path fill=\"#FFFFFF\" d=\"M3.498,0.53c0.377-0.331,0.877-0.501,1.374-0.527C5.697-0.04,6.522,0.421,6.924,1.142\n";
+  ptr += "c0.237,0.399,0.315,0.871,0.311,1.33C7.229,5.856,7.245,9.24,7.227,12.625c1.019,0.539,1.855,1.424,2.301,2.491\n";
+  ptr += "c0.491,1.163,0.518,2.514,0.062,3.693c-0.414,1.102-1.24,2.038-2.276,2.594c-1.056,0.583-2.331,0.743-3.501,0.463\n";
+  ptr += "c-1.417-0.323-2.659-1.314-3.3-2.617C0.014,18.26-0.115,17.104,0.1,16.022c0.296-1.443,1.274-2.717,2.58-3.394\n";
+  ptr += "c0.013-3.44,0-6.881,0.007-10.322C2.674,1.634,2.974,0.955,3.498,0.53z\"/>\n";
+  ptr += "</svg>\n";
+  ptr += "</div>\n";
+  ptr += "<div class=\"side-by-side temperature-text\">Temperature</div>\n";
+  ptr += "<div class=\"side-by-side temperature\">";
+  ptr += (int)temperature;
+  ptr += "<span class=\"superscript\">°C</span></div>\n";
+  ptr += "</div>\n";
+  ptr += "<div class=\"data\">\n";
+  ptr += "<div class=\"side-by-side humidity-icon\">\n";
+  ptr += "<svg version=\"1.1\" id=\"Layer_2\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n\"; width=\"12px\" height=\"17.955px\" viewBox=\"0 0 13 17.955\" enable-background=\"new 0 0 13 17.955\" xml:space=\"preserve\">\n";
+  ptr += "<path fill=\"#FFFFFF\" d=\"M1.819,6.217C3.139,4.064,6.5,0,6.5,0s3.363,4.064,4.681,6.217c1.793,2.926,2.133,5.05,1.571,7.057\n";
+  ptr += "c-0.438,1.574-2.264,4.681-6.252,4.681c-3.988,0-5.813-3.107-6.252-4.681C-0.313,11.267,0.026,9.143,1.819,6.217\"></path>\n";
+  ptr += "</svg>\n";
+  ptr += "</div>\n";
+  ptr += "<div class=\"side-by-side humidity-text\">Humidity</div>\n";
+  ptr += "<div class=\"side-by-side humidity\">";
+  ptr += (int)humidity;
+  ptr += "<span class=\"superscript\">%</span></div>\n";
+  ptr += "</div>\n";
+  ptr += "</div>\n";
+
+  ptr += "<div class=\"data\">\n";
+  ptr += ArchivoTexto;
+  ptr += "</div>\n";
+
+  ptr += "</body>\n";
+  ptr += "</html>\n";
+  return ptr;
+}
+
+void SetParametrosHtmlSD(String Texto_var) {
+  ArchivoTexto = Texto_var;
+}
+void SetParametrosHtmlPrediccionBaro(byte Pred_var) {
+  PrediccionPression = Pred_var;
+}
