@@ -26,14 +26,11 @@ const char* password = STAPSK;
 String header;
 
 
-float temperature, humidity, pressure, altitude = 700;
-float Presion[5], Temperatura[5];
 bool SetParametros = false;
 
 String FechaHTML = "";
 
 
-float PrediccionPression;
 
 String ArchivoTexto = "";
 
@@ -49,7 +46,15 @@ int Riego2ServerGet() {
   Riego2Segundos = 0;
   return var;
 }
-
+bool NuevaFecha = false;
+bool ServerNuevaFecha() {
+  if (NuevaFecha == true) {
+    NuevaFecha = false;
+    return true;
+  } else {
+    return false;
+  }
+}
 
 const String postForms = "<html>\
   <head>\
@@ -59,6 +64,12 @@ const String postForms = "<html>\
     </style>\
   </head>\
   <body>\
+  <h1>Sensores /postform/</h1><br>\
+    <form method=\"post\" enctype=\"text/plain\" action=\"/sensores/\">\
+      <input type=\"text\" name=\"sensores\" value=\"todos\"><br>\
+      <input type=\"submit\" value=\"Submit\">\
+      <a type=\"submit\" href=\"/texto\">- SD -</a>\
+    </form>\
     <h1>POST plain text to /postplain/</h1><br>\
     <form method=\"post\" enctype=\"text/plain\" action=\"/postplain/\">\
       <input type=\"text\" name=\'{\"Configuracion\": \"world\", \"trash\": \"\' value=\"0\"\'\"}\'><br>\
@@ -72,18 +83,45 @@ const String postForms = "<html>\
       <input type=\"submit\" value=\"Submit\">\
      </form>\
      <h1>Historial</h1><br>\
-    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/historial/\"><table>\
-      <tr><td>presion hace 1 hora <input type=\"text\" name=\"presion1\" value=\"0\"><br></td>\
-      <td>presion hace 2 hora <input type=\"text\" name=\"presion2\" value=\"0\"><br></td>\
-      <td>presion hace 3 hora <input type=\"text\" name=\"presion3\" value=\"0\"><br></td>\
-      <td>presion hace 4 hora <input type=\"text\" name=\"presion4\" value=\"0\"><br></td>\
-      <td>presion hace 5 hora <input type=\"text\" name=\"presion5\" value=\"0\"><br></td></tr>\
-      <tr><td>temperatura hace 1 hora <input type=\"text\" name=\"temperatura1\" value=\"0\"><br></td>\
-      <td>temperatura hace 2 hora <input type=\"text\" name=\"temperatura2\" value=\"0\"><br></td>\
-      <td>temperatura hace 3 hora <input type=\"text\" name=\"temperatura3\" value=\"0\"><br></td>\
-      <td>temperatura hace 4 hora <input type=\"text\" name=\"temperatura4\" value=\"0\"><br></td>\
-      <td>temperatura hace 5 hora <input type=\"text\" name=\"temperatura5\" value=\"0\"><br></td></tr>\
-      </table><input type=\"submit\" value=\"Submit\">\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/historial_horas/\">\
+    <h2>Historial en horas</h2>\
+    <table>\
+      <tr>\
+      <td>presion hace 0 hora <input type=\"text\" name=\"presion0\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 1 hora <input type=\"text\" name=\"presion1\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 2 hora <input type=\"text\" name=\"presion2\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 3 hora <input type=\"text\" name=\"presion3\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 4 hora <input type=\"text\" name=\"presion4\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 5 hora <input type=\"text\" name=\"presion5\" value=\"-\"> mhPa<br></td></tr>\
+      <tr>\
+      <td>temperatura hace 0 hora <input type=\"text\" name=\"temperatura0\" value=\"-\"><br></td>\
+      <td>temperatura hace 1 hora <input type=\"text\" name=\"temperatura1\" value=\"-\"><br></td>\
+      <td>temperatura hace 2 hora <input type=\"text\" name=\"temperatura2\" value=\"-\"><br></td>\
+      <td>temperatura hace 3 hora <input type=\"text\" name=\"temperatura3\" value=\"-\"><br></td>\
+      <td>temperatura hace 4 hora <input type=\"text\" name=\"temperatura4\" value=\"-\"><br></td>\
+      <td>temperatura hace 5 hora <input type=\"text\" name=\"temperatura5\" value=\"-\"><br></td></tr>\
+      </table>\
+      <input type=\"submit\" value=\"Submit\">\
+      </form>\
+      <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/historial_dias/\">\
+      <h2>Historial en dias</h2>\
+      <table>\
+      <tr>\
+      <td>presion hace 0 dias <input type=\"text\" name=\"presion0Dia\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 1 dias <input type=\"text\" name=\"presion1Dia\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 2 dias <input type=\"text\" name=\"presion2Dia\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 3 dias <input type=\"text\" name=\"presion3Dia\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 4 dias <input type=\"text\" name=\"presion4Dia\" value=\"-\"> mhPa<br></td>\
+      <td>presion hace 5 dias <input type=\"text\" name=\"presion5Dia\" value=\"-\"> mhPa<br></td></tr>\
+      <tr>\
+      <td>temperatura hace 0 dias <input type=\"text\" name=\"temperatura0Dia\" value=\"-\"><br></td>\
+      <td>temperatura hace 1 dias <input type=\"text\" name=\"temperatura1Dia\" value=\"-\"><br></td>\
+      <td>temperatura hace 2 dias <input type=\"text\" name=\"temperatura2Dia\" value=\"-\"><br></td>\
+      <td>temperatura hace 3 dias <input type=\"text\" name=\"temperatura3Dia\" value=\"-\"><br></td>\
+      <td>temperatura hace 4 dias <input type=\"text\" name=\"temperatura4Dia\" value=\"-\"><br></td>\
+      <td>temperatura hace 5 dias <input type=\"text\" name=\"temperatura5Dia\" value=\"-\"><br></td></tr>\
+      </table>\
+      <input type=\"submit\" value=\"Submit\">\
      </form>\
     <h1>Riego</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/postform/\">\
@@ -91,14 +129,21 @@ const String postForms = "<html>\
       Purga suelo 1 = <input type=\"text\" name=\"Purga2\" value=\"0\"><br>\
       Riego suelo 1 = <input type=\"text\" name=\"Riego1\" value=\"0\"><br>\
       Riego suelo 2 = <input type=\"text\" name=\"Riego2\" value=\"0\"><br>\
+      Riego suelo 1 diario = <input type=\"text\" name=\"Riego1diario\" value=\"0\"><br>\
+      Riego suelo 1 diario hora = <input type=\"text\" name=\"Riego1diarioHora\" value=\"0\"><br>\
+      Riego suelo 2 diario hora = <input type=\"text\" name=\"Riego2diarioHora\" value=\"0\"><br>\
       <input type=\"submit\" value=\"Submit\">\
      </form>\
-    <h1>Sensores /postform/</h1><br>\
-    <form method=\"post\" enctype=\"text/plain\" action=\"/sensores/\">\
-      <input type=\"text\" name=\"sensores\" value=\"todos\"><br>\
+    <h1>Fecha</h1><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/postfecha/\">\
+      Año = <input type=\"text\" name=\"Anio\" value=\"-\"><br>\
+      Mes = <input type=\"text\" name=\"Mes\" value=\"-\"><br>\
+      Dia = <input type=\"text\" name=\"Dia\" value=\"-\"><br>\
+      Hora = <input type=\"text\" name=\"Hora\" value=\"-\"><br>\
+      Minuto = <input type=\"text\" name=\"Minuto\" value=\"-\"><br>\
+      Segundo = <input type=\"text\" name=\"Segundo\" value=\"-\"><br>\
       <input type=\"submit\" value=\"Submit\">\
-      <a type=\"submit\" href=\"/texto\">- SD -</a>\
-    </form>\
+     </form>\
   </body>\
 </html>";
 
@@ -141,7 +186,9 @@ void setup_Server() {
   server.on("/prediccion", handleForm);
   server.on("/texto", handle_SD);
   server.on("/geoposicion/", handle_geoposicion);
-  server.on("/historial/", handle_Historial);
+  server.on("/historial_horas/", handle_HistorialHoras);
+  server.on("/historial_dias/", handle_HistorialDias);
+  server.on("/postfecha/", handle_Fecha);
   server.onNotFound(handleNotFound);
 
   server.begin();
@@ -186,18 +233,19 @@ void handlePlain() {
   }
 
   //digitalWrite(led, 0);
-}
 
-//  if (method() != HTTP_POST) {
-//    digitalWrite(led, 1);
-//    send(405, "text/plain", "Method Not Allowed");
-//    digitalWrite(led, 0);
-//  } else {
-//    digitalWrite(led, 1);
-//    send(200, "text/plain", "POST body was:\n" + arg("plain"));
-//    digitalWrite(led, 0);
-//  }
-//}
+  //  if (method() != HTTP_POST) {
+  //    digitalWrite(led, 1);
+  //    send(405, "text/plain", "Method Not Allowed");
+  //    digitalWrite(led, 0);
+  //  } else {
+  //    digitalWrite(led, 1);
+  //    send(200, "text/plain", "POST body was:\n" + arg("plain"));
+  //    digitalWrite(led, 0);
+  //  }
+  //}
+
+}
 
 void handleForm() {
   if (server.method() != HTTP_POST) {
@@ -280,7 +328,7 @@ void handleNotFound() {
 }
 
 void handle_OnConnect() {
-  server.send(200, "text/html", SendHTML(temperature, humidity, pressure, altitude, FechaHTML));
+  server.send(200, "text/html", SendHTML(ArchivoDatos.TemperaturaAmbiente, ArchivoDatos.HumedadAmbiente, ArchivoDatos.PresionAmbiente, ArchivoDatos.Altitud, FechaHTML, ArchivoDatos.PrediccionPresion));
 }
 
 void handle_SD() {
@@ -298,7 +346,7 @@ void handle_geoposicion() {
     for (uint8_t i = 0; i < server.args(); i++) {
       message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
       if ( server.argName(i) == "Altura") {
-        altitude = (server.arg(i).toInt());
+        ArchivoDatos.Altitud = (server.arg(i).toInt());
         message += "Altura " + server.arg(i) + " metros. \n";
       }
 
@@ -310,7 +358,7 @@ void handle_geoposicion() {
 
 }
 
-void handle_Historial() {
+void handle_HistorialHoras() {
   if (server.method() != HTTP_POST) {
     //digitalWrite(led, 1);
     server.send(405, "text/plain", "Method Not Allowed");
@@ -320,53 +368,160 @@ void handle_Historial() {
     for (uint8_t i = 0; i < server.args(); i++) {
       if ( server.arg(i) != 0) {
         SetParametros = true;
-        if (server.argName(i) == "presion1") {
+
+
+
+
+        if (server.argName(i) == "presion0") {
+          ArchivoDatos.PresionHoras[0] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "presion1") {
           ArchivoDatos.PresionHoras[1] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "presion2") {
+        else if (server.argName(i) == "presion2") {
           ArchivoDatos.PresionHoras[2] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "presion3") {
+        else if (server.argName(i) == "presion3") {
           ArchivoDatos.PresionHoras[3] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "presion4") {
+        else if (server.argName(i) == "presion4") {
           ArchivoDatos.PresionHoras[4] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "presion5") {
+        else if (server.argName(i) == "presion5") {
           ArchivoDatos.PresionHoras[5] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "temperatura1") {
+
+        else if (server.argName(i) == "temperatura0") {
+          ArchivoDatos.TemperaturaHoras[0] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "temperatura1") {
           ArchivoDatos.TemperaturaHoras[1] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "temperatura2") {
+        else if (server.argName(i) == "temperatura2") {
           ArchivoDatos.TemperaturaHoras[2] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "temperatura3") {
+        else if (server.argName(i) == "temperatura3") {
           ArchivoDatos.TemperaturaHoras[3] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "temperatura4") {
+        else if (server.argName(i) == "temperatura4") {
           ArchivoDatos.TemperaturaHoras[4] = server.arg(i).toFloat();
         }
-        if (server.argName(i) == "temperatura5") {
+        else if (server.argName(i) == "temperatura5") {
           ArchivoDatos.TemperaturaHoras[5] = server.arg(i).toFloat();
+        }
+
+      }
+    }
+  }
+  server.send(200, "text/html", SendHTML(ArchivoDatos.TemperaturaAmbiente, ArchivoDatos.HumedadAmbiente, ArchivoDatos.PresionAmbiente,  ArchivoDatos.Altitud, FechaHTML, ArchivoDatos.PrediccionPresion));
+
+}
+
+
+void handle_HistorialDias() {
+  if (server.method() != HTTP_POST) {
+    //digitalWrite(led, 1);
+    server.send(405, "text/plain", "Method Not Allowed");
+    //digitalWrite(led, 0);
+  } else {
+    //digitalWrite(led, 1);
+    for (uint8_t i = 0; i < server.args(); i++) {
+      if ( server.arg(i) != "-") {
+        SetParametros = true;
+
+
+
+        if (server.argName(i) == "presion0Dia") {
+          ArchivoDatos.PresionDias[0] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "presion1Dia") {
+          ArchivoDatos.PresionDias[1] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "presion2Dia") {
+          ArchivoDatos.PresionDias[2] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "presion3Dia") {
+          ArchivoDatos.PresionDias[3] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "presion4Dia") {
+          ArchivoDatos.PresionDias[4] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "presion5Dia") {
+          ArchivoDatos.PresionDias[5] = server.arg(i).toFloat();
+        }
+
+        else if (server.argName(i) == "temperatura0Dia") {
+          ArchivoDatos.TemperaturaDias[0] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "temperatura1Dia") {
+          ArchivoDatos.TemperaturaDias[1] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "temperatura2Dia") {
+          ArchivoDatos.TemperaturaDias[2] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "temperatura3Dia") {
+          ArchivoDatos.TemperaturaDias[3] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "temperatura4Dia") {
+          ArchivoDatos.TemperaturaDias[4] = server.arg(i).toFloat();
+        }
+        else  if (server.argName(i) == "temperatura5Dia") {
+          ArchivoDatos.TemperaturaDias[5] = server.arg(i).toFloat();
+        }
+
+      }
+    }
+  }
+  server.send(200, "text/html", SendHTML(ArchivoDatos.TemperaturaAmbiente, ArchivoDatos.HumedadAmbiente, ArchivoDatos.PresionAmbiente,  ArchivoDatos.Altitud, FechaHTML, ArchivoDatos.PrediccionPresion));
+
+}
+
+void handle_Fecha () {
+  if (server.method() != HTTP_POST) {
+    //digitalWrite(led, 1);
+    server.send(405, "text/plain", "Method Not Allowed");
+    //digitalWrite(led, 0);
+  } else {
+    //digitalWrite(led, 1);
+    for (uint8_t i = 0; i < server.args(); i++) {
+      if ( server.arg(i) != "-") {
+        NuevaFecha = true;
+        if (server.argName(i) == "Anio") {
+          ArchivoDatos.Anio = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "Mes") {
+          ArchivoDatos.Mes = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "Dia") {
+          ArchivoDatos.Dia = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "Hora") {
+          ArchivoDatos.Hora = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "Minuto") {
+          ArchivoDatos.Minuto = server.arg(i).toFloat();
+        }
+        if (server.argName(i) == "Segundo") {
+          ArchivoDatos.Segundo = server.arg(i).toFloat();
         }
       }
     }
   }
-  server.send(200, "text/html", SendHTML(temperature, humidity, pressure, altitude, FechaHTML));
-
+  String FechaActualSend = String(ArchivoDatos.Anio) + " / " + String(ArchivoDatos.Mes) + " / " + String(ArchivoDatos.Dia) + " / " + String(ArchivoDatos.Hora) + " : " + String(ArchivoDatos.Minuto) + " : " + String(ArchivoDatos.Segundo)  ;
+  server.send(200, "text/html", SendHTML(ArchivoDatos.TemperaturaAmbiente, ArchivoDatos.HumedadAmbiente, ArchivoDatos.PresionAmbiente,  ArchivoDatos.Altitud, FechaActualSend, ArchivoDatos.PrediccionPresion));
 }
 
+
 void SetParametrosHtml(float temperature_var, float humidity_var, float pressure_var, float Tempetura_var[5], float Presion_var[5], String FechaHtml_var) {
-  temperature = temperature_var;
-  humidity = humidity_var;
-  pressure =  pressure_var;
+  //temperature = temperature_var;
+  //humidity = humidity_var;
+  //pressure =  pressure_var;
   FechaHTML = FechaHtml_var;
   //  Presion = Presion_var;
   //  Temperatura = Tempetura_var;
 }
 
-String SendHTML(float temperature, float humidity, float pressure, float altitude, String FechaHtml) {
+String SendHTML(float temperature, float humidity, float pressure, float altitude, String FechaHtml, float PrediccionPresion) {
   String ptr = "<!DOCTYPE html> <html>\n";
   ptr += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
   ptr += "<title>ESP8266 Weather Station</title>\n";
@@ -391,63 +546,130 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
   ptr += pressure / 100;
   ptr += "hPa</p>";
   ptr += "<p>Altitude: ";
-  ptr += altitude;
+  ptr +=  altitude;
   ptr += " m</p><p>  Presion a ";
-  double PresionAltura = (pressure + (9.8 * 1.225 * altitude)) / 100;
+  double PresionAltura = (pressure + (9.8 * 1.225 *  altitude)) / 100;
   // ( Pa - Pa ) / ( 9.8 * 1.225 )
   ptr += PresionAltura;
   ptr += " hPa</p>";
+  ptr += "<p>  Punto de rocio ";
+  ptr += ArchivoDatos.PuntoRocio;
+  ptr += " C</p>";
   ptr += "<p>";
-  if (PrediccionPression < 0) {
+  if ((PrediccionPresion < 0) ) {
+    if (PrediccionPresion > 37400) {
+      ptr += " Lluvia ";
+    } else if ((PrediccionPresion <= 37400) && (PrediccionPresion >= 400)) {
+      ptr += " Nubes ";
+    } else {
+      ptr += " Sol y nubes ";
+    }
     ptr += " BORRASCA ";
   } else {
     ptr += " ANTICICLON ";
   }
-  ptr += PrediccionPression;
+  ptr += PrediccionPresion;
   ptr += "</p>";
 
   ptr += "<p><table>";
   ptr += "  <tr>";
+  ptr += "   <td>-0h</td>";
   ptr += "   <td>-1h</td>";
   ptr += "   <td>-2h</td>";
   ptr += "   <td>-3h</td>";
   ptr += "   <td>-4h</td>";
   ptr += "   <td>-5h</td>";
   ptr += "  </tr>";
-  ptr += "  <tr>";
-  ptr += "   <td>" ;
-  ptr += ArchivoDatos.PresionHoras[1] ;
+  ptr += "<tr>";
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionHoras[0] / 100 ;
   ptr += "hPa</td>";
-  ptr += "    <td>" ;
-  ptr += ArchivoDatos.PresionHoras[2] ;
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionHoras[1] / 100 ;
   ptr += "hPa</td>";
-  ptr += "    <td>" ;
-  ptr += ArchivoDatos.PresionHoras[3] ;
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionHoras[2] / 100 ;
   ptr += "hPa</td>";
-  ptr += "   <td>" ;
-  ptr += ArchivoDatos.PresionHoras[4] ;
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionHoras[3] / 100 ;
   ptr += "hPa</td>";
-  ptr += "   <td>";
-  ptr +=  ArchivoDatos.PresionHoras[5];
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionHoras[4] / 100 ;
   ptr += "hPa</td>";
-  ptr += "  </tr>";
-  ptr += "  <tr>";
-  ptr += "   <td>";
+  ptr += "<td>";
+  ptr +=  ArchivoDatos.PresionHoras[5] / 100;
+  ptr += "hPa</td>";
+  ptr += "</tr>";
+  ptr += "<tr>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.TemperaturaHoras[0];
+  ptr += "</td>";
+  ptr += "<td>";
   ptr += ArchivoDatos.TemperaturaHoras[1];
   ptr += "</td>";
-  ptr += "   <td>";
+  ptr += "<td>";
   ptr += ArchivoDatos.TemperaturaHoras[2];
   ptr += "</td>";
-  ptr += "   <td>";
+  ptr += "<td>";
   ptr += ArchivoDatos.TemperaturaHoras[3];
   ptr += "</td>";
-  ptr += "   <td>";
+  ptr += "<td>";
   ptr += ArchivoDatos.TemperaturaHoras[4];
   ptr += "</td>";
-  ptr += "   <td>";
+  ptr += "<td>";
   ptr += ArchivoDatos.TemperaturaHoras[5];
   ptr += "</td>";
+  ptr += "</tr>";
+  ptr += "</table>";
+  ptr += "<table>";
+  ptr += "  <tr>";
+  ptr += "   <td>-0d</td>";
+  ptr += "   <td>-1d</td>";
+  ptr += "   <td>-2d</td>";
+  ptr += "   <td>-3d</td>";
+  ptr += "   <td>-4d</td>";
+  ptr += "   <td>-5d</td>";
   ptr += "  </tr>";
+  ptr += "<tr>";
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionDias[0] / 100 ;
+  ptr += "hPa</td>";
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionDias[1] / 100 ;
+  ptr += "hPa</td>";
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionDias[2] / 100 ;
+  ptr += "hPa</td>";
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionDias[3] / 100 ;
+  ptr += "hPa</td>";
+  ptr += "<td>" ;
+  ptr += ArchivoDatos.PresionDias[4] / 100 ;
+  ptr += "hPa</td>";
+  ptr += "<td>";
+  ptr +=  ArchivoDatos.PresionDias[5] / 100;
+  ptr += "hPa</td>";
+  ptr += "</tr>";
+  ptr += "<tr>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.TemperaturaDias[0];
+  ptr += "</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.TemperaturaDias[1];
+  ptr += "</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.TemperaturaDias[2];
+  ptr += "</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.TemperaturaDias[3];
+  ptr += "</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.TemperaturaDias[4];
+  ptr += "</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.TemperaturaDias[5];
+  ptr += "</td>";
+  ptr += "</tr>";
   ptr += "</table></p>";
   ptr += "</div>\n";
   ptr += "</body>\n";
@@ -497,7 +719,7 @@ String SendHTML_SD() {
   ptr += "</div>\n";
   ptr += "<div class=\"side-by-side temperature-text\">Temperature</div>\n";
   ptr += "<div class=\"side-by-side temperature\">";
-  ptr += (int)temperature;
+  ptr += (int)ArchivoDatos.TemperaturaAmbiente;
   ptr += "<span class=\"superscript\">°C</span></div>\n";
   ptr += "</div>\n";
   ptr += "<div class=\"data\">\n";
@@ -509,7 +731,7 @@ String SendHTML_SD() {
   ptr += "</div>\n";
   ptr += "<div class=\"side-by-side humidity-text\">Humidity</div>\n";
   ptr += "<div class=\"side-by-side humidity\">";
-  ptr += (int)humidity;
+  ptr += (int)ArchivoDatos.HumedadAmbiente;
   ptr += "<span class=\"superscript\">%</span></div>\n";
   ptr += "</div>\n";
   ptr += "</div>\n";
@@ -525,7 +747,4 @@ String SendHTML_SD() {
 
 void SetParametrosHtmlSD(String Texto_var) {
   ArchivoTexto = Texto_var;
-}
-void SetParametrosHtmlPrediccionBaro(byte Pred_var) {
-  PrediccionPression = Pred_var;
 }
