@@ -103,12 +103,20 @@ void Guardar_Hora(int Hora,  double HumedadAmbiente,  double TemperaturaAmbiente
   if (myFile) {
     Serial.println("File opened ok");
     // print the headings for our data
-    myFile.print(" () Hora="); myFile.print(Hora);
-    myFile.print(" Humedad="); myFile.print(HumedadAmbiente);
-    myFile.print(" TemperaturaAmbiente="); myFile.print(TemperaturaAmbiente);
-    myFile.print(" PresionAmbiente="); myFile.print(PresionAmbiente);
-    myFile.print(" HumedadSuelo1="); myFile.print(HumedadSuelo1);
-    myFile.print(" HumedadSuelo2="); myFile.print(HumedadSuelo2);
+    //    myFile.print(" () Hora="); myFile.print(Hora);
+    //    myFile.print(" Humedad="); myFile.print(HumedadAmbiente);
+    //    myFile.print(" TemperaturaAmbiente="); myFile.print(TemperaturaAmbiente);
+    //    myFile.print(" PresionAmbiente="); myFile.print(PresionAmbiente);
+    //    myFile.print(" HumedadSuelo1="); myFile.print(HumedadSuelo1);
+    //    myFile.print(" HumedadSuelo2="); myFile.print(HumedadSuelo2);
+    myFile.print("(");
+    myFile.print("Hora="); myFile.print(Hora);
+    myFile.print(" HumedadAmbi="); myFile.print(HumedadAmbiente);
+    myFile.print(" TemperaAmbi="); myFile.print(TemperaturaAmbiente);
+    myFile.print(" PresionAmbi="); myFile.print(PresionAmbiente);
+    myFile.print(" HumedadSue1="); myFile.print(HumedadSuelo1);
+    myFile.print(" HumedadSue2="); myFile.print(HumedadSuelo2);
+    myFile.print(")");
   }
   myFile.close();
   digitalWrite(LED_BUILTIN, HIGH);
@@ -144,11 +152,11 @@ void Guardar_Dia(int Anio, int Mes, int Dia, int Hora, int Minuto, int Segundo ,
 
     myFile.print("(");
     myFile.print("Hora="); myFile.print(Hora);
-    myFile.print(" Humedad="); myFile.print(HumedadAmbiente);
-    myFile.print(" TemperaAmbiente="); myFile.print(TemperaturaAmbiente);
-    myFile.print(" PresionAmbiente="); myFile.print(PresionAmbiente);
-    myFile.print(" HumedadSuelo1="); myFile.print(HumedadSuelo1);
-    myFile.print(" HumedadSuelo2="); myFile.print(HumedadSuelo2);
+    myFile.print(" HumedadAmbi="); myFile.print(HumedadAmbiente);
+    myFile.print(" TemperaAmbi="); myFile.print(TemperaturaAmbiente);
+    myFile.print(" PresionAmbi="); myFile.print(PresionAmbiente);
+    myFile.print(" HumedadSue1="); myFile.print(HumedadSuelo1);
+    myFile.print(" HumedadSue2="); myFile.print(HumedadSuelo2);
     myFile.print(")");
   }
   myFile.close();
@@ -168,8 +176,7 @@ String LeerArchivo() {
   if (myFile) {
     //Serial.println("DATA.txt:");
     while (myFile.available()) {
-      //Texto = myFile.read();
-
+      Texto += myFile.read();
     }
     myFile.close(); //cerramos el archivo
     digitalWrite(LED_BUILTIN, HIGH);
@@ -181,20 +188,180 @@ String LeerArchivo() {
   return Texto;
 }
 
-String LeerValores() {
-  String Texto = "";
+String* LeerValoresRestauracion() {
+  String Texto[] = "";
+  //  file.seek(pos) //os ubicamos en una posición específica en el archivo. Pos debe ser un número entre 0 y el tamaño en bytes del archivo
+  //  file.position()  // Retorna la posición actual en donde se leerá o escribirá el siguiente byte.
+  //  file.size() //Retorna el tamaño en bytes del archivo
+
   digitalWrite(LED_BUILTIN, LOW);
   File myFile;
   if (!SD.begin(chipSelect)) {
     Serial.println("initialization failed!");
     digitalWrite(LED_BUILTIN, HIGH);
-    return "";
+    return Texto;
   }
   myFile = SD.open("DATA.txt");//abrimos  el archivo
   if (myFile) {
     //Serial.println("DATA.txt:");
+    int indice = myFile.size() ;
+    myFile.seek(indice);
+    int LineaPos = 0;
+    bool TipoValor = true;
+    bool SalirProceso = false;
+
+    if (SalirProceso = true) {}
     while (myFile.available()) {
-      //Texto = myFile.read();
+      String ValorTemporal = "";
+      String FragmentoTemporal = "";
+      char caracter = myFile.read();
+      if (caracter == 10) //ASCII de nueva de línea
+      {
+        LineaPos++;
+        if (LineaPos > 6) {
+          SalirProceso = true;
+          goto Salida;
+        }
+        indice++;
+        // break;
+      }
+
+
+      if (caracter == 125) { // }
+        int a = 0;
+      }
+      if (caracter == 123) { //{
+        int a = 0;
+      }
+
+      if (caracter == 41) { // )
+        ValorTemporal += caracter;
+      }
+      if (caracter == 61) { // =
+        ValorTemporal = FragmentoTemporal;
+        FragmentoTemporal = "";
+        TipoValor = false;
+      }
+
+      if ( "Hora" ) {
+        int a = 0;
+      }
+      if ( "HumedadAmbi" ) {
+        TipoValor = true;
+        int a = 0;
+      }
+      if ( "TemperaAmbi" ) {
+        TipoValor = true;
+        int a = 0;
+      }
+      if ( "PresionAmbi" ) {
+        TipoValor = true;
+        int a = 0;
+      }
+      if ( "HumedadSue1" ) {
+        TipoValor = true;
+        int a = 0;
+      }
+      if ( "HumedadSue2" ) {
+        TipoValor = true;
+        int a = 0;
+      }
+
+      if (caracter == 40) { // (
+        int a = 0;
+      }
+      if (caracter == 61) { // =
+        int a = 0;
+      }
+
+      if (caracter == 44) { // ,
+        int a = 0;
+      }
+      //    if (caracter == 61) { // =
+      //      break;
+      //    }
+
+      FragmentoTemporal += caracter;
+      Texto[indice] += caracter;
+    }
+
+
+
+    //0  null
+    //40  (
+    //41  )
+    //42  *
+    //43  +
+    //44  ,
+    //45  -
+
+
+
+    myFile.close(); //cerramos el archivo
+    digitalWrite(LED_BUILTIN, HIGH);
+    //Serial.println(Texto);
+  } else {
+    Serial.println("Error al abrir el archivo");
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
+
+Salida:
+  digitalWrite(LED_BUILTIN, HIGH);
+  return Texto;
+}
+
+
+
+String* LeerValores() {
+  String Texto[] = "";
+  //  file.seek(pos) //os ubicamos en una posición específica en el archivo. Pos debe ser un número entre 0 y el tamaño en bytes del archivo
+  //  file.position()  // Retorna la posición actual en donde se leerá o escribirá el siguiente byte.
+  //  file.size() //Retorna el tamaño en bytes del archivo
+
+  digitalWrite(LED_BUILTIN, LOW);
+  File myFile;
+  if (!SD.begin(chipSelect)) {
+    Serial.println("initialization failed!");
+    digitalWrite(LED_BUILTIN, HIGH);
+    return Texto;
+  }
+  myFile = SD.open("DATA.txt");//abrimos  el archivo
+  if (myFile) {
+    //Serial.println("DATA.txt:");
+    int indice = 0 ;
+    myFile.seek(myFile.size());
+    while (myFile.available()) {
+      char caracter = myFile.read();
+      if (caracter == 10) //ASCII de nueva de línea
+      {
+        indice++;
+        // break;
+      }
+      if (caracter == 123) { //{
+      }
+      if (caracter == 125) { // }
+
+      }
+      if (caracter == 40) { // (
+
+      }
+      if (caracter == 41) { // )
+
+      }
+      if (caracter == 44) { // ,
+
+      }
+      if (caracter == 61) { // =
+
+      }
+      //0  null
+      //40  (
+      //41  )
+      //42  *
+      //43  +
+      //44  ,
+      //45  -
+      Texto[indice] += caracter;
 
     }
     myFile.close(); //cerramos el archivo
