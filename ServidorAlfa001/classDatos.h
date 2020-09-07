@@ -7,6 +7,8 @@ class classDatos {
     double PresionAmbiente = 0;
     double HumedadSuelo1 = 0 ;
     double HumedadSuelo2 = 0 ;
+    float PuntoRocio = 0;
+    float Altitud = 700;
     int Anio = 0 ;
     int Mes = 0 ;
     int Dia = 0 ;
@@ -16,12 +18,12 @@ class classDatos {
     int Riego1Segundos = 0 ;
     int Riego2Segundos = 0 ;
 
-    float PresionHoras[5];
-    float PresionDias[5];
-    float TemperaturaHoras[5];
-    float TemperaturaDias[5];
+    float PresionHoras[6];
+    float PresionDias[6];
+    float TemperaturaHoras[6];
+    float TemperaturaDias[6];
 
-    byte PrediccionPresion;
+    float PrediccionPresion;
   private:
 
 
