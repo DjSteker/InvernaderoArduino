@@ -120,6 +120,13 @@ const String postForms = "<html>\
       <td>temperatura hace 3 dias <input type=\"text\" name=\"temperatura3Dia\" value=\"-\"><br></td>\
       <td>temperatura hace 4 dias <input type=\"text\" name=\"temperatura4Dia\" value=\"-\"><br></td>\
       <td>temperatura hace 5 dias <input type=\"text\" name=\"temperatura5Dia\" value=\"-\"><br></td></tr>\
+      <tr>\
+      <td>humedad hace 0 dias <input type=\"text\" name=\"humedad0Dia\" value=\"-\"><br></td>\
+      <td>humedad hace 1 dias <input type=\"text\" name=\"humedad1Dia\" value=\"-\"><br></td>\
+      <td>humedad hace 2 dias <input type=\"text\" name=\"humedad2Dia\" value=\"-\"><br></td>\
+      <td>humedad hace 3 dias <input type=\"text\" name=\"humedad3Dia\" value=\"-\"><br></td>\
+      <td>humedad hace 4 dias <input type=\"text\" name=\"humedad4Dia\" value=\"-\"><br></td>\
+      <td>humedad hace 5 dias <input type=\"text\" name=\"humedad5Dia\" value=\"-\"><br></td></tr>\
       </table>\
       <input type=\"submit\" value=\"Submit\">\
      </form>\
@@ -469,6 +476,25 @@ void handle_HistorialDias() {
           ArchivoDatos.TemperaturaDias[5] = server.arg(i).toFloat();
         }
 
+        else if (server.argName(i) == "humedad0Dia") {
+          ArchivoDatos.HumedadDias[0] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "humedad1Dia") {
+          ArchivoDatos.HumedadDias[1] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "humedad2Dia") {
+          ArchivoDatos.HumedadDias[2] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "humedad3Dia") {
+          ArchivoDatos.HumedadDias[3] = server.arg(i).toFloat();
+        }
+        else if (server.argName(i) == "humedad4Dia") {
+          ArchivoDatos.HumedadDias[4] = server.arg(i).toFloat();
+        }
+        else  if (server.argName(i) == "humedad5Dia") {
+          ArchivoDatos.HumedadDias[5] = server.arg(i).toFloat();
+        }
+
       }
     }
   }
@@ -557,9 +583,9 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
   ptr += " C</p>";
   ptr += "<p>";
   if ((PrediccionPresion < 0) ) {
-    if (PrediccionPresion > 37400) {
+    if (PrediccionPresion < -37400) {
       ptr += " Lluvia ";
-    } else if ((PrediccionPresion <= 37400) && (PrediccionPresion >= 400)) {
+    } else if ((PrediccionPresion >= -37400) && (PrediccionPresion <= -400)) {
       ptr += " Nubes ";
     } else {
       ptr += " Sol y nubes ";
@@ -569,6 +595,8 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
     ptr += " ANTICICLON ";
   }
   ptr += PrediccionPresion;
+  ptr += "<br> Prediccion dias";
+  ptr += ArchivoDatos.PrediccionDias;
   ptr += "</p>";
 
   ptr += "<p><table>";
@@ -669,6 +697,26 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
   ptr += "<td>";
   ptr += ArchivoDatos.TemperaturaDias[5];
   ptr += "</td>";
+  ptr += "</tr>";
+  ptr += "<tr>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.HumedadDias[0];
+  ptr += "%</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.HumedadDias[1];
+  ptr += "%</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.HumedadDias[2];
+  ptr += "%</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.HumedadDias[3];
+  ptr += "%</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.HumedadDias[4];
+  ptr += "%</td>";
+  ptr += "<td>";
+  ptr += ArchivoDatos.HumedadDias[5];
+  ptr += "%</td>";
   ptr += "</tr>";
   ptr += "</table></p>";
   ptr += "</div>\n";
