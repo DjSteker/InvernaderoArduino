@@ -22,8 +22,9 @@ class classDatos {
     float PresionDias[6];
     float TemperaturaHoras[6];
     float TemperaturaDias[6];
-
+    float HumedadDias[6];
     float PrediccionPresion;
+    float PrediccionDias;
   private:
 
 
