@@ -233,7 +233,43 @@ classFecha GetFecha(classFecha ArchivoFecha) {
   ArchivoFecha.Segundo =  now.second() ;
   return ArchivoFecha;
 }
+classFecha SetFecha(classFecha ArchivoFecha) {
+  DateTime now; // = RTC.now();
 
+
+
+    //Clock.setClockMode(false);  // set to 24h
+    //setClockMode(true); // set to 12h
+
+
+  //  now.second(ArchivoFecha.Segundo);
+  //  RTC.setSeconds(now.second);
+  //  now.minute(ArchivoFecha.Minuto);
+  //  RTC.setMinutes(now.minute);
+  //  now.hour(ArchivoFecha.Hora);
+  //  RTC.setHour(now.hour);
+  //  now.day(ArchivoFecha.Dia);
+  //  RTC.setDay(now.day);
+  //  now.month(ArchivoFecha.Mes);
+  //  RTC.setMonth(now.month);
+  //  now.year(ArchivoFecha.Anio);
+  //  RTC.setYear = now.year;
+
+  DS3231 Clock;
+  Clock.setSecond(ArchivoFecha.Segundo);
+  Clock.setMinute(ArchivoFecha.Minuto);
+  Clock.setHour(ArchivoFecha.Hora);
+  Clock.setDoW(ArchivoFecha.Dia);
+  //Clock.setDate(Date);
+  Clock.setMonth(ArchivoFecha.Mes);
+  Clock.setYear(ArchivoFecha.Anio);
+
+  //RTC.adjust(DateTime(ArchivoFecha.Anio, ArchivoFecha.Mes, ArchivoFecha.Dia, ArchivoFecha.Hora, ArchivoFecha.Minuto, ArchivoFecha.Segundo));
+
+  //RTC.setTime( ArchivoFecha.Hora, ArchivoFecha.Minuto, ArchivoFecha.Segundo);
+
+  return ArchivoFecha;
+}
 
 
 void inicializar() {
