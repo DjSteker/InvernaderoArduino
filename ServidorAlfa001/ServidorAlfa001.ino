@@ -1,5 +1,6 @@
 
 
+
 #include "Servidor.h"
 #include "Sensores.h"
 
@@ -15,6 +16,7 @@ classDatos ArchivoDatos;
 //#include "Perceptron.h"
 
 int HoraGruadado = 0;
+int DiaGruadado = 0;
 
 
 float TemperaturaMedia1, HumedadMedia1, PresionMedia1;
@@ -31,6 +33,8 @@ void ObtenerDatos() {
   ArchivoDatos.HumedadSuelo2 = i2c_GetHumedadSuelo2() ;
 
   ArchivoDatos.PuntoRocio = GetPuntoRocio(ArchivoDatos.HumedadAmbiente, ArchivoDatos.TemperaturaAmbiente);
+  ArchivoDatos.PrediccionDias = prediccionPTH(ArchivoDatos.PresionDias, ArchivoDatos.TemperaturaDias, ArchivoDatos.HumedadDias);
+
 
   if (ServerNuevaFecha() == true) {
     classFecha FechaActualTemp;
@@ -60,7 +64,7 @@ void ObtenerDatos() {
     procesarHora();
   }
 
-  if (ArchivoDatos.Hora == 7) {
+  if ((ArchivoDatos.Hora == 7) && (DiaGruadado != ArchivoDatos.Hora )) {
     delay(100);
     procesarDia();
   }
@@ -111,7 +115,7 @@ void procesarHora() {
   //double Riego2Cantidad = i2c_Regar2();
 }
 void procesarDia() {
-
+  DiaGruadado != ArchivoDatos.Hora ;
   ArchivoDatos.TemperaturaDias[5] = ArchivoDatos.TemperaturaDias[4];
   ArchivoDatos.TemperaturaDias[4] = ArchivoDatos.TemperaturaDias[3];
   ArchivoDatos.TemperaturaDias[3] = ArchivoDatos.TemperaturaDias[2];
