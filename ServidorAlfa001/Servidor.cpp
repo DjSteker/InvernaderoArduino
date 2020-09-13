@@ -33,6 +33,7 @@ String FechaHTML = "";
 
 
 String ArchivoTexto = "";
+String ArchivoTexto2 = "";
 
 int Riego1Segundos = 0;
 int Riego2Segundos = 0;
@@ -560,11 +561,12 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
   ptr += "<div id=\"webpage\">\n";
   ptr += "<h1>ESP8266 Weather Station</h1>\n";
   ptr += "<p>fecha ";
-  ptr += FechaHtml;
+  String FechaActual = String(ArchivoDatos.Dia) + "/" + String(ArchivoDatos.Mes) + "/" + String(ArchivoDatos.Anio) + "   " + String(ArchivoDatos.Hora) + ":" + String(ArchivoDatos.Minuto) + ":" + String(ArchivoDatos.Segundo)  ;
+  ptr += FechaActual;
   ptr += "</p>";
   ptr += "<p>Temperature: ";
   ptr += temperature;
-  ptr += "ºC</p>";
+  ptr += " C</p>";
   ptr += "<p>Humidity: ";
   ptr += humidity;
   ptr += "%</p>";
@@ -583,16 +585,30 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
   ptr += " C</p>";
   ptr += "<p>";
   if ((PrediccionPresion < 0) ) {
-    if (PrediccionPresion < -37400) {
-      ptr += " Lluvia ";
-    } else if ((PrediccionPresion >= -37400) && (PrediccionPresion <= -400)) {
-      ptr += " Nubes ";
-    } else {
-      ptr += " Sol y nubes ";
+    if ((PrediccionPresion < -38400) && ((ArchivoDatos.PrediccionDias < 0) && (ArchivoDatos.PrediccionDias > -1))) {
+      ptr += " Chubasco ";
     }
-    ptr += " BORRASCA ";
+    else if ((PrediccionPresion < -37400) && (ArchivoDatos.PrediccionDias < 0)) {
+      ptr += " Lluvia ";
+    }
+    else if ((PrediccionPresion <= -37562) && ((ArchivoDatos.PrediccionDias > -1) && (ArchivoDatos.PrediccionDias < 0))) {
+      ptr += " Intervalos lluviosos ";
+    }
+    else if ((PrediccionPresion >= -37562) && (PrediccionPresion <= -400) && (ArchivoDatos.PrediccionDias < 0)) {
+      ptr += " Nubes ";
+    }
+    else {
+      ptr += " Nubes y claros ";
+    }
+    ptr += "<br> BORRASCA ";
   } else {
-    ptr += " ANTICICLON ";
+    if ((PrediccionPresion < 400) &&  (ArchivoDatos.PrediccionDias < -1)) {
+      ptr += " Intervalos nubosos ";
+    }
+    else  {
+      ptr += " Sol ";
+    }
+    ptr += "<br> ANTICICLON ";
   }
   ptr += PrediccionPresion;
   ptr += "<br> Prediccion dias";
@@ -720,6 +736,10 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
   ptr += "</tr>";
   ptr += "</table></p>";
   ptr += "</div>\n";
+
+  ptr += "<div><p>\n";
+  ptr += ArchivoTexto2;
+  ptr += "</p></div>\n";
   ptr += "</body>\n";
   ptr += "</html>\n";
   return ptr;
@@ -788,6 +808,10 @@ String SendHTML_SD() {
   ptr += ArchivoTexto;
   ptr += "</div>\n";
 
+  ptr += "<div class=\"data\">\n";
+  ptr += ArchivoDatos.ArchivoTexto;
+  ptr += "</div>\n";
+
   ptr += "</body>\n";
   ptr += "</html>\n";
   return ptr;
@@ -795,4 +819,7 @@ String SendHTML_SD() {
 
 void SetParametrosHtmlSD(String Texto_var) {
   ArchivoTexto = Texto_var;
+}
+void SetParametrosHtmlSD2(String Texto_var) {
+  ArchivoTexto2 = Texto_var;
 }
