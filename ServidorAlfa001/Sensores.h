@@ -238,8 +238,8 @@ classFecha SetFecha(classFecha ArchivoFecha) {
 
 
 
-    //Clock.setClockMode(false);  // set to 24h
-    //setClockMode(true); // set to 12h
+  //Clock.setClockMode(false);  // set to 24h
+  //setClockMode(true); // set to 12h
 
 
   //  now.second(ArchivoFecha.Segundo);
@@ -264,7 +264,9 @@ classFecha SetFecha(classFecha ArchivoFecha) {
   Clock.setMonth(ArchivoFecha.Mes);
   Clock.setYear(ArchivoFecha.Anio);
 
-  //RTC.adjust(DateTime(ArchivoFecha.Anio, ArchivoFecha.Mes, ArchivoFecha.Dia, ArchivoFecha.Hora, ArchivoFecha.Minuto, ArchivoFecha.Segundo));
+
+//  RTC_DS3231 RTC_adj;
+//  RTC_adj.adjust(DateTime(ArchivoFecha.Anio, ArchivoFecha.Mes, ArchivoFecha.Dia, ArchivoFecha.Hora, ArchivoFecha.Minuto, ArchivoFecha.Segundo));
 
   //RTC.setTime( ArchivoFecha.Hora, ArchivoFecha.Minuto, ArchivoFecha.Segundo);
 
