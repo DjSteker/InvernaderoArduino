@@ -29,6 +29,7 @@ String SendHTML(float temperature, float humidity, float pressure, float altitud
 String SendHTML_SD();
 void SetParametrosHtml(float temperature_var, float humidity_var, float pressure_var, float Tempetura_var[5], float Presion_var[5], String FechaHtml_var);
 void SetParametrosHtmlSD(String Texto);
+void SetParametrosHtmlSD2(String Texto);
 //void SetParametrosHtmlPrediccionBaro(float Pred_var);
 
 
@@ -36,6 +37,8 @@ int Riego1ServerGet();
 int Riego2ServerGet();
 
 bool ServerNuevaFecha();
+
+
 //ESP8266WebServer server(int a);
 
 //class server : public ESP8266WebServer {
