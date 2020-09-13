@@ -1,6 +1,5 @@
 
 
-
 #include "Servidor.h"
 #include "Sensores.h"
 
@@ -15,12 +14,14 @@ classDatos ArchivoDatos;
 
 //#include "Perceptron.h"
 
-int HoraGruadado = 0;
+int HoraGruadado = -1;
 int DiaGruadado = 0;
-
+bool turnoSD = false;
 
 float TemperaturaMedia1, HumedadMedia1, PresionMedia1;
 void ObtenerDatos() {
+
+
 
   //  ArchivoDatos.HumedadAmbiente = GetHumedadAmbiente();
   //  ArchivoDatos.TemperaturaAmbiente = GetTemperaturaAmbiente() ;
@@ -32,18 +33,17 @@ void ObtenerDatos() {
   ArchivoDatos.HumedadSuelo1 = i2c_GetHumedadSuelo1() ;
   ArchivoDatos.HumedadSuelo2 = i2c_GetHumedadSuelo2() ;
 
-  ArchivoDatos.PuntoRocio = GetPuntoRocio(ArchivoDatos.HumedadAmbiente, ArchivoDatos.TemperaturaAmbiente);
-  ArchivoDatos.PrediccionDias = prediccionPTH(ArchivoDatos.PresionDias, ArchivoDatos.TemperaturaDias, ArchivoDatos.HumedadDias);
 
+  String Texto = LeerValoresRestauracion();
 
   if (ServerNuevaFecha() == true) {
     classFecha FechaActualTemp;
-    FechaActualTemp.Anio =  ArchivoDatos.Anio ;
-    FechaActualTemp.Mes =  ArchivoDatos.Mes ;
+    FechaActualTemp.Anio =  ArchivoDatos.Anio;
+    FechaActualTemp.Mes =  ArchivoDatos.Mes;
     FechaActualTemp.Dia =  ArchivoDatos.Dia;
-    FechaActualTemp.Hora =   ArchivoDatos.Hora ;
+    FechaActualTemp.Hora =   ArchivoDatos.Hora;
     FechaActualTemp.Minuto =  ArchivoDatos.Minuto;
-    FechaActualTemp.Segundo =  ArchivoDatos.Segundo ;
+    FechaActualTemp.Segundo =  ArchivoDatos.Segundo;
     SetFecha(FechaActualTemp);
   } else {
     classFecha FechaActual;
@@ -58,24 +58,37 @@ void ObtenerDatos() {
     ArchivoDatos.Riego2Segundos = 0 ;
   }
 
+
+  if ((ArchivoDatos.Hora == 7) && (DiaGruadado != ArchivoDatos.Dia )) {
+    delay(100);
+    procesarDia();
+  }
+
   //if ((HoraGruadado <  ArchivoDatos.Hora) || ((ArchivoDatos.Hora == 0) && (HoraGruadado != ArchivoDatos.Hora))) {
   if (HoraGruadado != ArchivoDatos.Hora) {
     delay(100);
     procesarHora();
   }
 
-  if ((ArchivoDatos.Hora == 7) && (DiaGruadado != ArchivoDatos.Hora )) {
-    delay(100);
-    procesarDia();
+
+  if (turnoSD == true) {
+    String FechaActualSend = String(ArchivoDatos.Anio) + "/" + String(ArchivoDatos.Mes) + "/" + String(ArchivoDatos.Dia) + "   " + String(ArchivoDatos.Hora) + ":" + String(ArchivoDatos.Minuto) + ":" + String(ArchivoDatos.Segundo)  ;
+    //SetParametrosHtml(ArchivoDatos.TemperaturaAmbiente,  ArchivoDatos.HumedadAmbiente, ArchivoDatos.PresionAmbiente, ArchivoDatos.TemperaturaHoras, ArchivoDatos.PresionHoras, FechaActualSend);
+    SetParametrosHtmlSD(LeerArchivo());
+    SetParametrosHtmlSD2(LeerValoresRestauracion());
+    turnoSD == false;
+  } else {
+    turnoSD = true;
   }
-
-  String FechaActualSend = String(ArchivoDatos.Anio) + "/" + String(ArchivoDatos.Mes) + "/" + String(ArchivoDatos.Dia) + "   " + String(ArchivoDatos.Hora) + ":" + String(ArchivoDatos.Minuto) + ":" + String(ArchivoDatos.Segundo)  ;
-
-  SetParametrosHtml(ArchivoDatos.TemperaturaAmbiente,  ArchivoDatos.HumedadAmbiente, ArchivoDatos.PresionAmbiente, ArchivoDatos.TemperaturaHoras, ArchivoDatos.PresionHoras, FechaActualSend);
-  SetParametrosHtmlSD(LeerArchivo());
+  turnoSD != turnoSD;
   RiegoSuelo1_INO();
+
+  ArchivoDatos.PuntoRocio = GetPuntoRocio(ArchivoDatos.HumedadAmbiente, ArchivoDatos.TemperaturaAmbiente);
+  ArchivoDatos.PrediccionDias = prediccionPTH(ArchivoDatos.PresionDias, ArchivoDatos.TemperaturaDias, ArchivoDatos.HumedadDias);
+
   ArchivoDatos.PrediccionPresion = prediccionPresion(ArchivoDatos.PresionHoras);
   TemperaturaMedia1 = TemperaturaMedia0 ; HumedadMedia1 = HumedadMedia0;  PresionMedia1 = PresionMedia0;
+  //ArchivoDatos.ArchivoTexto = LeerValoresHtml();
 }
 
 void procesarHora() {
@@ -115,21 +128,32 @@ void procesarHora() {
   //double Riego2Cantidad = i2c_Regar2();
 }
 void procesarDia() {
-  DiaGruadado != ArchivoDatos.Hora ;
-  ArchivoDatos.TemperaturaDias[5] = ArchivoDatos.TemperaturaDias[4];
-  ArchivoDatos.TemperaturaDias[4] = ArchivoDatos.TemperaturaDias[3];
-  ArchivoDatos.TemperaturaDias[3] = ArchivoDatos.TemperaturaDias[2];
-  ArchivoDatos.TemperaturaDias[2] = ArchivoDatos.TemperaturaDias[1];
-  ArchivoDatos.TemperaturaDias[1] = ArchivoDatos.TemperaturaDias[0];
-  ArchivoDatos.TemperaturaDias[0] = (ArchivoDatos.TemperaturaAmbiente +  GetTemperaturaAmbiente()) / 2;
+  DiaGruadado = ArchivoDatos.Dia ;
+  //  ArchivoDatos.TemperaturaDias[5] = ArchivoDatos.TemperaturaDias[4];
+  //  ArchivoDatos.TemperaturaDias[4] = ArchivoDatos.TemperaturaDias[3];
+  //  ArchivoDatos.TemperaturaDias[3] = ArchivoDatos.TemperaturaDias[2];
+  //  ArchivoDatos.TemperaturaDias[2] = ArchivoDatos.TemperaturaDias[1];
+  //  ArchivoDatos.TemperaturaDias[1] = ArchivoDatos.TemperaturaDias[0];
+  //  ArchivoDatos.TemperaturaDias[0] = (ArchivoDatos.TemperaturaAmbiente +  GetTemperaturaAmbiente()) / 2;
+  //
+  //  ArchivoDatos.PresionDias[5] = ArchivoDatos.PresionDias[4];
+  //  ArchivoDatos.PresionDias[4] = ArchivoDatos.PresionDias[3];
+  //  ArchivoDatos.PresionDias[3] = ArchivoDatos.PresionDias[2];
+  //  ArchivoDatos.PresionDias[2] = ArchivoDatos.PresionDias[1];
+  //  ArchivoDatos.PresionDias[1] = ArchivoDatos.PresionDias[0];
+  //  ArchivoDatos.PresionDias[0] = (ArchivoDatos.PresionAmbiente + GetPresionAmbiente()) / 2;
+  //
+  //
+  //  ArchivoDatos.HumedadDias[5] = ArchivoDatos.HumedadDias[4];
+  //  ArchivoDatos.HumedadDias[4] = ArchivoDatos.HumedadDias[3];
+  //  ArchivoDatos.HumedadDias[3] = ArchivoDatos.HumedadDias[2];
+  //  ArchivoDatos.HumedadDias[2] = ArchivoDatos.HumedadDias[1];
+  //  ArchivoDatos.HumedadDias[1] = ArchivoDatos.HumedadDias[0];
+  //  ArchivoDatos.HumedadDias[0] = (ArchivoDatos.HumedadAmbiente + GetHumedadAmbiente()) / 2;
 
-  ArchivoDatos.PresionDias[5] = ArchivoDatos.PresionDias[4];
-  ArchivoDatos.PresionDias[4] = ArchivoDatos.PresionDias[3];
-  ArchivoDatos.PresionDias[3] = ArchivoDatos.PresionDias[2];
-  ArchivoDatos.PresionDias[2] = ArchivoDatos.PresionDias[1];
-  ArchivoDatos.PresionDias[1] = ArchivoDatos.PresionDias[0];
-  ArchivoDatos.PresionDias[0] = (ArchivoDatos.PresionAmbiente + GetPresionAmbiente()) / 2;
-  Guardar_Dia(ArchivoDatos.Anio, ArchivoDatos.Mes, ArchivoDatos.Dia, ArchivoDatos.Hora, ArchivoDatos.Minuto, ArchivoDatos.Segundo, ArchivoDatos.HumedadAmbiente,  ArchivoDatos.TemperaturaAmbiente, ArchivoDatos.PresionAmbiente, ArchivoDatos.HumedadSuelo1, ArchivoDatos.HumedadSuelo2);
+
+  //Guardar_Dia(ArchivoDatos.Anio, ArchivoDatos.Mes, ArchivoDatos.Dia, ArchivoDatos.Hora, ArchivoDatos.Minuto, ArchivoDatos.Segundo, ArchivoDatos.HumedadAmbiente,  ArchivoDatos.TemperaturaAmbiente, ArchivoDatos.PresionAmbiente, ArchivoDatos.HumedadSuelo1, ArchivoDatos.HumedadSuelo2);
+  Guardar_Dia(ArchivoDatos.Anio, ArchivoDatos.Mes, ArchivoDatos.Dia, ArchivoDatos.Hora, ArchivoDatos.Minuto, ArchivoDatos.Segundo);
 
   // i2c_SetHumedadSuelo2MinMax();
   // i2c_SetHumedadSuelo1MinMax();
@@ -160,7 +184,7 @@ void RiegoSuelo1_INO() {
 }
 
 
-TramaTiempo blink_ObtenerDatos = TramaTiempo(5000003, ObtenerDatos);
+TramaTiempo blink_ObtenerDatos = TramaTiempo(15000003, ObtenerDatos);
 TramaTiempo blink_ServerLoop = TramaTiempo(150211, loopServer);
 
 
@@ -171,7 +195,7 @@ ESP8266WebServer server(80);
 void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
-  setup_Server();
+  setup_Server(); delay(500);
   setup_Sensores(); delay(100);
   TemperaturaMedia1 = GetTemperaturaAmbiente(); HumedadMedia1 = GetHumedadAmbiente(); PresionMedia1 = GetPresionAmbiente();
   ObtenerDatos(); delay(100);
