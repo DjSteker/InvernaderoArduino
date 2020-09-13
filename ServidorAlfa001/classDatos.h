@@ -1,4 +1,5 @@
 
+
 class classDatos {
 
   public:
@@ -8,7 +9,7 @@ class classDatos {
     double HumedadSuelo1 = 0 ;
     double HumedadSuelo2 = 0 ;
     float PuntoRocio = 0;
-    float Altitud = 700;
+    float Altitud = 650;
     int Anio = 0 ;
     int Mes = 0 ;
     int Dia = 0 ;
@@ -25,6 +26,8 @@ class classDatos {
     float HumedadDias[6];
     float PrediccionPresion;
     float PrediccionDias;
+    String Texto[6];
+    String ArchivoTexto = "";
   private:
 
 
