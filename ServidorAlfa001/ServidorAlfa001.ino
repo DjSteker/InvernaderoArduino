@@ -21,8 +21,6 @@ bool turnoSD = false;
 float TemperaturaMedia1, HumedadMedia1, PresionMedia1;
 void ObtenerDatos() {
 
-
-
   //  ArchivoDatos.HumedadAmbiente = GetHumedadAmbiente();
   //  ArchivoDatos.TemperaturaAmbiente = GetTemperaturaAmbiente() ;
   //  ArchivoDatos.PresionAmbiente = GetPresionAmbiente();
@@ -32,9 +30,6 @@ void ObtenerDatos() {
   ArchivoDatos.PresionAmbiente = (PresionMedia0 + PresionMedia1) / 2;
   ArchivoDatos.HumedadSuelo1 = i2c_GetHumedadSuelo1() ;
   ArchivoDatos.HumedadSuelo2 = i2c_GetHumedadSuelo2() ;
-
-
-  String Texto = LeerValoresRestauracion();
 
   if (ServerNuevaFecha() == true) {
     classFecha FechaActualTemp;
@@ -81,10 +76,16 @@ void ObtenerDatos() {
     turnoSD = true;
   }
   turnoSD != turnoSD;
-  RiegoSuelo1_INO();
+
 
   ArchivoDatos.PuntoRocio = GetPuntoRocio(ArchivoDatos.HumedadAmbiente, ArchivoDatos.TemperaturaAmbiente);
   ArchivoDatos.PrediccionDias = prediccionPTH(ArchivoDatos.PresionDias, ArchivoDatos.TemperaturaDias, ArchivoDatos.HumedadDias);
+
+  
+
+  RiegoSuelo1_INO();
+
+
 
   ArchivoDatos.PrediccionPresion = prediccionPresion(ArchivoDatos.PresionHoras);
   TemperaturaMedia1 = TemperaturaMedia0 ; HumedadMedia1 = HumedadMedia0;  PresionMedia1 = PresionMedia0;
