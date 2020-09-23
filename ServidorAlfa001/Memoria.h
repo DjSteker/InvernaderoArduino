@@ -6,8 +6,6 @@ void Guardar_Dia(int Anio, int Mes, int Dia, int Hora, int Minuto, int Segundo )
 
 String LeerArchivo() ;
 
-
-
 String* LeerValores() ;
 
 bool ExisteArchivo();
@@ -15,3 +13,11 @@ bool ExisteArchivo();
 String LeerValoresHtml();
 
 String LeerValoresRestauracion();
+
+long ConvierteFechaEnNumero( int year, int mes, int dia);
+
+void SetMemoriaDias(String Linea, int DiaIdice);
+
+void SetMemoriaHoras(String Linea);
+
+//String ProcesarLineaRestauracion ( String Linea_var );
