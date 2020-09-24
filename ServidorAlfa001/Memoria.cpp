@@ -68,57 +68,204 @@ void SetMemoriaDias(String Linea, int DiaIdice) {
 
   if (PosicionALas7 != -1) {
     DiaHumedadH7pos =  Linea.indexOf("HumedadAmbi=", PosicionALas7 );
-    Serial.print(" DhSS"); Serial.print(DiaHumedadH7pos);
+    //Serial.print(" DhSS"); Serial.print(DiaHumedadH7pos);
     DiaHumedadH7 =  Linea.substring(DiaHumedadH7pos + 12, Linea.indexOf(' ', DiaHumedadH7pos)); //.toDouble();
-    Serial.print(" Dh"); Serial.print(DiaHumedadH7);
+    //Serial.print(" Dh"); Serial.print(DiaHumedadH7);
 
     DiaTemperaturaH7pos = Linea.indexOf("TemperaAmbi=", DiaHumedadH7pos );
-    Serial.print(" DtSS"); Serial.print(DiaTemperaturaH7pos);
+    //Serial.print(" DtSS"); Serial.print(DiaTemperaturaH7pos);
     DiaTemperaturaH7 = Linea.substring(DiaTemperaturaH7pos + 12, Linea.indexOf(' ', DiaTemperaturaH7pos)); //.toDouble();
-    Serial.print(" Dt"); Serial.print(DiaTemperaturaH7);
+    //Serial.print(" Dt"); Serial.print(DiaTemperaturaH7);
 
     DiaPresionH7pos =  Linea.indexOf("PresionAmbi=", DiaTemperaturaH7pos );
-    Serial.print(" DpSS"); Serial.print(DiaPresionH7pos);
+    //Serial.print(" DpSS"); Serial.print(DiaPresionH7pos);
     DiaPresionH7 =  Linea.substring(DiaPresionH7pos + 12, Linea.indexOf(' ', DiaPresionH7pos)); //.toDouble();
-    Serial.print(" Dp"); Serial.print(DiaPresionH7);
+    //Serial.print(" Dp"); Serial.print(DiaPresionH7);
 
     ArchivoDatos.TemperaturaDias[DiaIdice] = DiaTemperaturaH7.toFloat();
     ArchivoDatos.PresionDias[DiaIdice] = DiaPresionH7.toFloat();
     ArchivoDatos.HumedadDias[DiaIdice] = DiaHumedadH7.toFloat();
-  } else {Serial.print(" Error");Serial.print(DiaIdice);Serial.print(" ---- ");Serial.print(Linea);}
+  } else {
+    Serial.print(" Error_0XX1");
+    Serial.print(DiaIdice);
+    Serial.print("---- ");
+    Serial.print(Linea);
+  }
 }
+
+void SetMemoriaHoraParametros(String Registro, int HoraIndice) {
+  Serial.println("");
+  Serial.print(" Registro"); Serial.println(Registro);
+  int posicion1 = Registro.indexOf("PresionAmbi=");
+  int posicion2 = Registro.indexOf(" ", posicion1);
+  //String Texto;
+  //"PresionAmbi"
+  //"TemperaAmbi"
+  //"HumedadAmbi"
+  if (posicion1 > -1) {
+    //    Texto += Registro.substring(posicion1, posicion2).toFloat();
+    //    Texto += "\n";
+    ArchivoDatos.PresionHoras[HoraIndice] = Registro.substring(posicion1 + 12, posicion2).toFloat();
+    Serial.print("indice"); Serial.print(HoraIndice); Serial.print( ArchivoDatos.PresionHoras[HoraIndice]); Serial.println(Registro.substring(posicion1, posicion2));
+  }
+  posicion1 = Registro.indexOf("TemperaAmbi=");
+  posicion2 = Registro.indexOf(" ", posicion1);
+  if (posicion1 > -1) {
+    //    Texto += Registro.substring(posicion1, posicion2).toFloat();
+    //    Texto += "\n";
+    ArchivoDatos.TemperaturaHoras[HoraIndice] = Registro.substring(posicion1 + 12, posicion2).toFloat();
+    Serial.print(Registro.substring(posicion1 + 12, posicion2).toFloat()); Serial.println(Registro.substring(posicion1, posicion2));
+  }
+  posicion1 = Registro.indexOf("HumedadAmbi=");
+  posicion2 = Registro.indexOf(" ", posicion1);
+  if (posicion1 > -1) {
+    //    Texto += Registro.substring(posicion1, posicion2).toFloat();
+    //    Texto += "\n";
+    Serial.println(Registro.substring(posicion1, posicion2));
+  }
+
+
+
+  // DiaHumedadH7pos =  Linea.indexOf("HumedadAmbi=", PosicionALas7 );
+
+  //  ArchivoDatos.PresionHoras[HoraIndice] = Registro.substring(PosicionHora,  Linea.indexOf(' ', PosicionHora)).toFloat();
+  //  ArchivoDatos.TemperaturaHoras[HoraIndice] = Linea.substring(PosicionHora,  Linea.indexOf(' ', PosicionHora)).toFloat();
+
+
+
+  //String Datos1 = ProcesarLineaRestauracion("");
+
+  //
+  //  int posicion = 0;
+  //  int posicion2 = Lineas[0].lastIndexOf('=', posicion);
+  //  int posicion3 = Lineas[0].lastIndexOf(' ', posicion);
+  //  int posicion4 = Lineas[0].lastIndexOf(')', posicion);
+  //  Serial.print("posicion3"); Serial.print( posicion3); Serial.print(" posicion4"); Serial.print(posicion4);
+  //  Serial.println(Lineas[0].substring(posicion3, posicion4));
+  //  if (Lineas[0].substring(posicion3, posicion2) == "HumedadSue2") {
+  //    Texto += Lineas[0].substring(posicion3, posicion4);
+  //    Texto += "\n";
+  //    Serial.println(Lineas[0].substring(posicion3, posicion4));
+  //  }
+  //  posicion = 1;
+  //  posicion2 = Lineas[0].lastIndexOf('=', posicion);
+  //  posicion4 = posicion3;
+  //  posicion3 = Lineas[0].lastIndexOf(' ', posicion);
+  //  if (Lineas[0].substring(posicion2, posicion3) == "HumedadSue1") {
+  //    Texto += Lineas[0].substring(posicion3, posicion4);
+  //    Texto += "\n";
+  //    Serial.println(Lineas[0].substring(posicion3, posicion4));
+  //  }
+  //  posicion = 2;
+  //  posicion2 = Lineas[0].lastIndexOf('=', posicion);
+  //
+  //  posicion3 = Lineas[0].lastIndexOf(' ', posicion);
+  //  if (Lineas[0].substring(posicion2, posicion3) == "PresionAmbi") {
+  //    Texto += Lineas[0].substring(posicion3, posicion4);
+  //    Texto += "\n";
+  //    Serial.println(Lineas[0].substring(posicion3, posicion4));
+  //  }
+  //  posicion = 3;
+  //  posicion2 = Lineas[0].lastIndexOf('=', posicion);
+  //  posicion4 = posicion3;
+  //  posicion3 = Lineas[0].lastIndexOf(' ', posicion);
+  //  if (Lineas[0].substring(posicion2, posicion3) == "TemperaAmbi") {
+  //    Texto += Lineas[0].substring(posicion3, posicion4);
+  //    Texto += "\n";
+  //    Serial.println(Lineas[0].substring(posicion3, posicion4));
+  //  }
+  //  posicion = 4;
+  //  posicion2 = Lineas[0].lastIndexOf('=', posicion);
+  //  posicion4 = posicion3;
+  //  posicion3 = Lineas[0].lastIndexOf(' ', posicion);
+  //  if (Lineas[0].substring(posicion2, posicion3) == "HumedadAmbi") {
+  //    Texto += Lineas[0].substring(posicion3, posicion4);
+  //    Texto += "\n";
+  //    Serial.println(Lineas[0].substring(posicion3, posicion4));
+  //  }
+  //  posicion = 5;
+  //  posicion2 = Lineas[0].lastIndexOf('=', posicion);
+  //  posicion4 = posicion3;
+  //  posicion3 = Lineas[0].lastIndexOf(' ', posicion);
+  //  if (Lineas[0].substring(posicion2, posicion3) == "Hora") {
+  //    Texto += Lineas[0].substring(posicion3, posicion4);
+  //    Texto += "\n";
+  //    Serial.println(Lineas[0].substring(posicion3, posicion4));
+  //  }
+  //
+  //  LineaPos = 1;
+}
+
 
 void SetMemoriaHoras(String Linea) {
-  int PosicionALas7 = Linea.indexOf("Hora=7");
 
-  String DiaPresionH7, DiaHumedadH7, DiaTemperaturaH7;
-  int DiaPresionH7pos, DiaHumedadH7pos, DiaTemperaturaH7pos;
 
-  if (PosicionALas7 != -1) {
-    DiaHumedadH7pos =  Linea.indexOf("HumedadAmbi=", PosicionALas7 );
-    Serial.print(" DhSS"); Serial.print(DiaHumedadH7pos);
-    DiaHumedadH7 =  Linea.substring(DiaHumedadH7pos + 12, Linea.indexOf(' ', DiaHumedadH7pos)); //.toDouble();
-    Serial.print(" Dh"); Serial.print(DiaHumedadH7);
+  int Posicion = Linea.length() - 1;
+  for (int indice = 0; indice < 24; indice++) {
 
-    DiaTemperaturaH7pos = Linea.indexOf("TemperaAmbi=", DiaHumedadH7pos );
-    Serial.print(" DtSS"); Serial.print(DiaTemperaturaH7pos);
-    DiaTemperaturaH7 = Linea.substring(DiaTemperaturaH7pos + 12, Linea.indexOf(' ', DiaTemperaturaH7pos)); //.toDouble();
-    Serial.print(" Dt"); Serial.print(DiaTemperaturaH7);
+    int PosicionUltima = Linea.lastIndexOf(")", Posicion);
+    int PosicionInicio = Linea.lastIndexOf("(", Posicion) ;
+    Serial.print(" PosicionUltima "); Serial.print(PosicionUltima); Serial.print(" PosicionInicio "); Serial.print(PosicionInicio);
 
-    DiaPresionH7pos =  Linea.indexOf("PresionAmbi=", DiaTemperaturaH7pos );
-    Serial.print(" DpSS"); Serial.print(DiaPresionH7pos);
-    DiaPresionH7 =  Linea.substring(DiaPresionH7pos + 12, Linea.indexOf(' ', DiaPresionH7pos)); //.toDouble();
-    Serial.print(" Dp"); Serial.print(DiaPresionH7);
 
-    ArchivoDatos.TemperaturaDias[DiaIdice] = DiaTemperaturaH7.toFloat();
-    ArchivoDatos.PresionDias[DiaIdice] = DiaPresionH7.toFloat();
-    ArchivoDatos.HumedadDias[DiaIdice] = DiaHumedadH7.toFloat();
-  } else {Serial.print(" Error");Serial.print(DiaIdice);Serial.print(" ---- ");Serial.print(Linea);}
+
+
+    String TextoRegistro = Linea.substring(PosicionInicio,  PosicionUltima + 1);
+
+
+
+    int PosicionHora = TextoRegistro.lastIndexOf("Hora=", Posicion) + 5; //Linea.indexOf("Hora=7");
+    Serial.print(" h "); Serial.print(TextoRegistro.substring(PosicionHora,  TextoRegistro.indexOf(' ', PosicionHora)));
+    int HoraTexto = TextoRegistro.substring(PosicionHora,  Linea.indexOf(' ', PosicionHora)).toInt();
+
+
+    //Serial.print(" h "); Serial.print(HoraTexto); Serial.print(" _ "); Serial.println(TextoRegistro);
+    if ((PosicionUltima != -1) && (PosicionInicio != -1)) {
+      Serial.print(" hX"); Serial.print(HoraTexto); Serial.print("X "); Serial.print(ArchivoDatos.Hora); Serial.print("X ");
+
+      if (ArchivoDatos.Hora == HoraTexto) {
+        SetMemoriaHoraParametros(TextoRegistro, 0);
+        ArchivoDatos.HoraGruadado = ArchivoDatos.Hora;
+        Serial.print(" h_0 ");
+      }
+      else if ((ArchivoDatos.Hora - 1) == HoraTexto) {
+        SetMemoriaHoraParametros(TextoRegistro, 1);
+        Serial.print(" h_1 ");
+      }
+      else if ((ArchivoDatos.Hora - 2) == HoraTexto) {
+        SetMemoriaHoraParametros(TextoRegistro, 2);
+        Serial.print(" h_2 ");
+      }
+      else if ((ArchivoDatos.Hora - 3) == HoraTexto) {
+        SetMemoriaHoraParametros(TextoRegistro, 3);
+        Serial.print(" h_3 ");
+      }
+      else if ((ArchivoDatos.Hora - 4) == HoraTexto) {
+        SetMemoriaHoraParametros(TextoRegistro, 4);
+        Serial.print(" h_4 ");
+      }
+      else if ((ArchivoDatos.Hora - 5) == HoraTexto) {
+        SetMemoriaHoraParametros(TextoRegistro, 5);
+        Serial.print(" h_5 ");
+        indice = 24;
+      }
+      else {
+        Serial.print(" Error_0XX2");
+        Serial.print(" ---- ");
+      }
+    } else {
+      Serial.print(" Error_0XX3");
+    }
+    Posicion = PosicionInicio - 1;
+  }
 }
+
 
 long ConvierteFechaEnNumero( int year, int mes, int dia) {
   //char  *Day[] = {"","Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
-
+  //int DMes[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  //      unsigned long AAAA, MM, DD;
+  //      unsigned long HH, mm, ss, DS;
   int tablaMes[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   long diaNum;
 
@@ -403,9 +550,6 @@ SalidaSD:
 
       long DiaNumeroLeectura = ConvierteFechaEnNumero(Anio_m, Mes_m, Dia_m);
       long DiaNumeroActual = ConvierteFechaEnNumero(ArchivoDatos.Anio, ArchivoDatos.Mes, ArchivoDatos.Dia);
-      //int DMes[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-      //      unsigned long AAAA, MM, DD;
-      //      unsigned long HH, mm, ss, DS;
 
 
       Serial.print(" DiaNumeroActual"); Serial.print(DiaNumeroActual);
@@ -413,6 +557,8 @@ SalidaSD:
 
       if (DiaNumeroActual == DiaNumeroLeectura) {
         SetMemoriaDias(Lineas[indiceDias], 0);
+        SetMemoriaHoras(Lineas[indiceDias]);
+        ArchivoDatos.DiaGruadado = DiaNumeroActual;
       } else if ((DiaNumeroActual - 1) == DiaNumeroLeectura) {
         SetMemoriaDias(Lineas[indiceDias], 1);
       } else if ((DiaNumeroActual - 2) == DiaNumeroLeectura) {
