@@ -1,5 +1,4 @@
 
-
 class classDatos {
 
   public:
@@ -18,6 +17,8 @@ class classDatos {
     int Segundo = 0 ;
     int Riego1Segundos = 0 ;
     int Riego2Segundos = 0 ;
+    int HoraGruadado = -1;
+    int DiaGruadado = 0;
 
     float PresionHoras[6];
     float PresionDias[6];
@@ -29,6 +30,5 @@ class classDatos {
     String Texto[6];
     String ArchivoTexto = "";
   private:
-
 
 };
