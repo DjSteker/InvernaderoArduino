@@ -14,8 +14,8 @@ classDatos ArchivoDatos;
 
 //#include "Perceptron.h"
 
-int HoraGruadado = -1;
-int DiaGruadado = 0;
+//int HoraGruadado = -1;
+//int DiaGruadado = 0;
 bool turnoSD = false;
 
 float TemperaturaMedia1, HumedadMedia1, PresionMedia1;
@@ -54,15 +54,15 @@ void ObtenerDatos() {
   }
 
 
-  if ((ArchivoDatos.Hora == 7) && (DiaGruadado != ArchivoDatos.Dia )) {
+  if ((ArchivoDatos.Hora == 7) && (ArchivoDatos.DiaGruadado != ArchivoDatos.Dia )) {
     delay(100);
-    procesarDia(TemperaturaMedia0 , HumedadMedia0 , PresionMedia0);
+    procesarDia();
   }
 
   //if ((HoraGruadado <  ArchivoDatos.Hora) || ((ArchivoDatos.Hora == 0) && (HoraGruadado != ArchivoDatos.Hora))) {
-  if (HoraGruadado != ArchivoDatos.Hora) {
+  if (ArchivoDatos.HoraGruadado != ArchivoDatos.Hora) {
     delay(100);
-    procesarHora(TemperaturaMedia0 , HumedadMedia0 , PresionMedia0);
+    procesarHora();
   }
 
 
@@ -92,21 +92,21 @@ void ObtenerDatos() {
   //ArchivoDatos.ArchivoTexto = LeerValoresHtml();
 }
 
-void procesarHora(float TemperaturaMedia_var , float HumedadMedia_var , float PresionMedia_var) {
-  HoraGruadado = ArchivoDatos.Hora;
+void procesarHora() {
+  ArchivoDatos.HoraGruadado = ArchivoDatos.Hora;
   ArchivoDatos.PresionHoras[5] = ArchivoDatos.PresionHoras[4];
   ArchivoDatos.PresionHoras[4] = ArchivoDatos.PresionHoras[3];
   ArchivoDatos.PresionHoras[3] = ArchivoDatos.PresionHoras[2];
   ArchivoDatos.PresionHoras[2] = ArchivoDatos.PresionHoras[1];
   ArchivoDatos.PresionHoras[1] = ArchivoDatos.PresionHoras[0];
-  ArchivoDatos.PresionHoras[0] = PresionMedia_var; //(ArchivoDatos.PresionAmbiente + GetPresionAmbiente()) / 2;
+  ArchivoDatos.PresionHoras[0] = (ArchivoDatos.PresionAmbiente + GetPresionAmbiente()) / 2;
 
   ArchivoDatos.TemperaturaHoras[5] = ArchivoDatos.TemperaturaHoras[4];
   ArchivoDatos.TemperaturaHoras[4] = ArchivoDatos.TemperaturaHoras[3];
   ArchivoDatos.TemperaturaHoras[3] = ArchivoDatos.TemperaturaHoras[2];
   ArchivoDatos.TemperaturaHoras[2] = ArchivoDatos.TemperaturaHoras[1];
   ArchivoDatos.TemperaturaHoras[1] = ArchivoDatos.TemperaturaHoras[0];
-  ArchivoDatos.TemperaturaHoras[0] = TemperaturaMedia_var;//(ArchivoDatos.TemperaturaAmbiente + GetTemperaturaAmbiente()) / 2;
+  ArchivoDatos.TemperaturaHoras[0] = (ArchivoDatos.TemperaturaAmbiente +  GetTemperaturaAmbiente()) / 2;
 
   ArchivoDatos.HumedadSuelo1 = i2c_GetHumedadSuelo1();
   ArchivoDatos.HumedadSuelo2 =  i2c_GetHumedadSuelo2();
@@ -128,43 +128,49 @@ void procesarHora(float TemperaturaMedia_var , float HumedadMedia_var , float Pr
   //double Riego1Cantidad = i2c_Regar1();
   //double Riego2Cantidad = i2c_Regar2();
 }
-void procesarDia(float TemperaturaMedia_var , float HumedadMedia_var , float PresionMedia_var) {
-  DiaGruadado = ArchivoDatos.Dia ;
+void procesarDia() {
+  ArchivoDatos.DiaGruadado = ArchivoDatos.Dia ;
+  ArchivoDatos.TemperaturaDias[5] = ArchivoDatos.TemperaturaDias[4];
+  ArchivoDatos.TemperaturaDias[4] = ArchivoDatos.TemperaturaDias[3];
+  ArchivoDatos.TemperaturaDias[3] = ArchivoDatos.TemperaturaDias[2];
+  ArchivoDatos.TemperaturaDias[2] = ArchivoDatos.TemperaturaDias[1];
+  ArchivoDatos.TemperaturaDias[1] = ArchivoDatos.TemperaturaDias[0];
+  ArchivoDatos.TemperaturaDias[0] = (ArchivoDatos.TemperaturaAmbiente +  GetTemperaturaAmbiente()) / 2;
 
   ArchivoDatos.PresionDias[5] = ArchivoDatos.PresionDias[4];
   ArchivoDatos.PresionDias[4] = ArchivoDatos.PresionDias[3];
   ArchivoDatos.PresionDias[3] = ArchivoDatos.PresionDias[2];
   ArchivoDatos.PresionDias[2] = ArchivoDatos.PresionDias[1];
   ArchivoDatos.PresionDias[1] = ArchivoDatos.PresionDias[0];
-  ArchivoDatos.PresionDias[0] = PresionMedia_var; //(ArchivoDatos.PresionDias + GetPresionAmbiente()) / 2;
+  ArchivoDatos.PresionDias[0] = (ArchivoDatos.PresionAmbiente + GetPresionAmbiente()) / 2;
 
-  ArchivoDatos.TemperaturaDias[5] = ArchivoDatos.TemperaturaDias[4];
-  ArchivoDatos.TemperaturaDias[4] = ArchivoDatos.TemperaturaDias[3];
-  ArchivoDatos.TemperaturaDias[3] = ArchivoDatos.TemperaturaDias[2];
-  ArchivoDatos.TemperaturaDias[2] = ArchivoDatos.TemperaturaDias[1];
-  ArchivoDatos.TemperaturaDias[1] = ArchivoDatos.TemperaturaDias[0];
-  ArchivoDatos.TemperaturaDias[0] = TemperaturaMedia_var; //(ArchivoDatos.TemperaturaAmbiente + GetTemperaturaAmbiente()) / 2;
 
   ArchivoDatos.HumedadDias[5] = ArchivoDatos.HumedadDias[4];
   ArchivoDatos.HumedadDias[4] = ArchivoDatos.HumedadDias[3];
   ArchivoDatos.HumedadDias[3] = ArchivoDatos.HumedadDias[2];
   ArchivoDatos.HumedadDias[2] = ArchivoDatos.HumedadDias[1];
   ArchivoDatos.HumedadDias[1] = ArchivoDatos.HumedadDias[0];
-  ArchivoDatos.HumedadDias[0] = HumedadMedia_var; //(ArchivoDatos.HumedadAmbiente + GetHumedadAmbiente()) / 2;
+  ArchivoDatos.HumedadDias[0] = (ArchivoDatos.HumedadAmbiente + GetHumedadAmbiente()) / 2;
 
+
+  //Guardar_Dia(ArchivoDatos.Anio, ArchivoDatos.Mes, ArchivoDatos.Dia, ArchivoDatos.Hora, ArchivoDatos.Minuto, ArchivoDatos.Segundo, ArchivoDatos.HumedadAmbiente,  ArchivoDatos.TemperaturaAmbiente, ArchivoDatos.PresionAmbiente, ArchivoDatos.HumedadSuelo1, ArchivoDatos.HumedadSuelo2);
   Guardar_Dia(ArchivoDatos.Anio, ArchivoDatos.Mes, ArchivoDatos.Dia, ArchivoDatos.Hora, ArchivoDatos.Minuto, ArchivoDatos.Segundo);
 
-  //  i2c_SetHumedadAmbiente();
-  //  i2c_SetTemperaturaAmbiente();
-  //  i2c_SetPresionAmbiente();
-  //  i2c_SetAnio();
-  //  i2c_SetMes();
-  //  i2c_SetHora();
-  //  i2c_SetDia();
-  //  i2c_SetMinuto();
-  //  i2c_SetSegundo();
+  // i2c_SetHumedadSuelo2MinMax();
+  // i2c_SetHumedadSuelo1MinMax();
+  i2c_SetHumedadAmbiente();
+  i2c_SetTemperaturaAmbiente();
+  i2c_SetPresionAmbiente();
+  i2c_SetAnio();
+  i2c_SetMes();
+  i2c_SetHora();
+  i2c_SetDia();
+  i2c_SetMinuto();
+  i2c_SetSegundo();
   double HumedadSuelo1 = i2c_GetHumedadSuelo1();
   double HumedadSuelo2 =  i2c_GetHumedadSuelo2();
+  //double Riego1Cantidad = i2c_Regar1();
+  //double Riego2Cantidad = i2c_Regar2();
 }
 
 void RiegoSuelo1_INO() {
@@ -179,8 +185,8 @@ void RiegoSuelo1_INO() {
 }
 
 
-TramaTiempo blink_ObtenerDatos = TramaTiempo(15000003, ObtenerDatos);
-TramaTiempo blink_ServerLoop = TramaTiempo(150211, loopServer);
+TramaTiempo blink_ObtenerDatos = TramaTiempo(20000103, ObtenerDatos);
+TramaTiempo blink_ServerLoop = TramaTiempo(570231, loopServer);
 
 
 
@@ -191,12 +197,13 @@ void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   setup_Server(); delay(500);
-  setup_Sensores(); delay(100);
-  TemperaturaMedia1 = GetTemperaturaAmbiente(); HumedadMedia1 = GetHumedadAmbiente(); PresionMedia1 = GetPresionAmbiente();
-  ObtenerDatos(); delay(100);
-  ObtenerDatos();
+  setup_Sensores(); delay(200);
+  TemperaturaMedia1 = GetTemperaturaAmbiente(); HumedadMedia1 = GetHumedadAmbiente(); PresionMedia1 = GetPresionAmbiente(); delay(1000);
+  LeerValoresRestauracion();
+  ObtenerDatos(); delay(2000);
+  ObtenerDatos(); delay(2000);
   //InicializarPerceptron();
-  ObtenerDatos(); delay(100); Serial.print(".");
+  ObtenerDatos(); delay(1000); Serial.print(".");
   //  ObtenerDatos(); delay(200); Serial.print(".");
   //  ObtenerDatos(); delay(150); Serial.print(".");
   //  ObtenerDatos(); delay(100); Serial.print(".");
@@ -215,8 +222,6 @@ void loop(void) {
   // ESP.deepSleep(tiempoMicrosSegundos);
   // Entra en modo ESP8266 deep sleep durante 10 segundos   4.300 millones de µs lo que viene a ser unos 71 minutos. Este es el máximo de tiempo que puede estar en sueño profundo.
   //ESP.deepSleep(10e6);
-
-
 
 
   //modo: es el modo de ahorro de operación que quieres utilizar. Puede tomar 3 valores posibles.
