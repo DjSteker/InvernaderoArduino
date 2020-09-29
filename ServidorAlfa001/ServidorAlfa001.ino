@@ -53,7 +53,7 @@ void ObtenerDatos() {
     ArchivoDatos.Riego2Segundos = 0 ;
   }
 
-
+  if (ServerRestaura() == true) {SetParametrosHtmlSD2(LeerValoresRestauracion());}
   if ((ArchivoDatos.Hora == 7) && (ArchivoDatos.DiaGruadado != ArchivoDatos.Dia )) {
     delay(100);
     procesarDia();
@@ -70,7 +70,7 @@ void ObtenerDatos() {
     String FechaActualSend = String(ArchivoDatos.Anio) + "/" + String(ArchivoDatos.Mes) + "/" + String(ArchivoDatos.Dia) + "   " + String(ArchivoDatos.Hora) + ":" + String(ArchivoDatos.Minuto) + ":" + String(ArchivoDatos.Segundo)  ;
     //SetParametrosHtml(ArchivoDatos.TemperaturaAmbiente,  ArchivoDatos.HumedadAmbiente, ArchivoDatos.PresionAmbiente, ArchivoDatos.TemperaturaHoras, ArchivoDatos.PresionHoras, FechaActualSend);
     SetParametrosHtmlSD(LeerArchivo());
-    SetParametrosHtmlSD2(LeerValoresRestauracion());
+    //SetParametrosHtmlSD2(LeerValoresRestauracion());
     turnoSD == false;
   } else {
     turnoSD = true;
@@ -185,7 +185,7 @@ void RiegoSuelo1_INO() {
 }
 
 
-TramaTiempo blink_ObtenerDatos = TramaTiempo(20000103, ObtenerDatos);
+TramaTiempo blink_ObtenerDatos = TramaTiempo(25000103, ObtenerDatos);
 TramaTiempo blink_ServerLoop = TramaTiempo(570231, loopServer);
 
 
@@ -197,8 +197,16 @@ void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   setup_Server(); delay(500);
-  setup_Sensores(); delay(200);
-  TemperaturaMedia1 = GetTemperaturaAmbiente(); HumedadMedia1 = GetHumedadAmbiente(); PresionMedia1 = GetPresionAmbiente(); delay(1000);
+  setup_Sensores(); delay(300);
+  classFecha FechaActual;
+  FechaActual = GetFecha(FechaActual);
+  ArchivoDatos.Anio = FechaActual.Anio ;
+  ArchivoDatos.Mes = FechaActual.Mes ;
+  ArchivoDatos.Dia = FechaActual.Dia ;
+  ArchivoDatos.Hora = FechaActual.Hora ;
+  ArchivoDatos.Minuto = FechaActual.Minuto ;
+  ArchivoDatos.Segundo = FechaActual.Segundo ;
+  TemperaturaMedia1 = GetTemperaturaAmbiente(); HumedadMedia1 = GetHumedadAmbiente(); PresionMedia1 = GetPresionAmbiente(); delay(2000);
   LeerValoresRestauracion();
   ObtenerDatos(); delay(2000);
   ObtenerDatos(); delay(2000);
@@ -222,6 +230,8 @@ void loop(void) {
   // ESP.deepSleep(tiempoMicrosSegundos);
   // Entra en modo ESP8266 deep sleep durante 10 segundos   4.300 millones de µs lo que viene a ser unos 71 minutos. Este es el máximo de tiempo que puede estar en sueño profundo.
   //ESP.deepSleep(10e6);
+
+
 
 
   //modo: es el modo de ahorro de operación que quieres utilizar. Puede tomar 3 valores posibles.
