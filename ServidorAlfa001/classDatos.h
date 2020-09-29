@@ -1,4 +1,5 @@
 
+
 class classDatos {
 
   public:
@@ -30,5 +31,6 @@ class classDatos {
     String Texto[6];
     String ArchivoTexto = "";
   private:
+
 
 };
