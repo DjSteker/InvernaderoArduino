@@ -24,6 +24,8 @@ void handle_geoposicion();
 void handle_HistorialHoras();
 void handle_HistorialDias();
 void handle_Fecha();
+void handle_Restaura();
+
 
 String SendHTML(float temperature, float humidity, float pressure, float altitude, String FechaHtml, float PrediccionPresion);
 String SendHTML_SD();
@@ -38,6 +40,8 @@ int Riego2ServerGet();
 
 bool ServerNuevaFecha();
 
+//bool ServerRestauraHistorial();
+bool ServerRestaura(); 
 
 //ESP8266WebServer server(int a);
 
