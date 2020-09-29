@@ -365,6 +365,7 @@ void EnviarFecha() {
 
 }
 
+
 void Ambiente() {
 
 	//start a temperature measurement
@@ -399,13 +400,13 @@ void Ambiente() {
 	Serial.print(h);
 	Serial.print(F("%  Temperature: "));
 	Serial.print(t);
-	Serial.print(F("ºC "));
+	Serial.print(F("�C "));
 	Serial.print(f);
-	Serial.print(F("ºF  Heat index: "));
+	Serial.print(F("�F  Heat index: "));
 	Serial.print(hic);
-	Serial.print(F("ºC "));
+	Serial.print(F("�C "));
 	Serial.print(hif);
-	Serial.println(F("ºF"));
+	Serial.println(F("�F"));
 }
 
 
@@ -421,7 +422,7 @@ void setup_Sensores() {
 	Serial.print(h);
 	Serial.print(F("%  Temperature: "));
 	Serial.print(t);
-	Serial.print(F("ºC "));
+	Serial.print(F("�C "));
 	Serial.print(f);
 	EstadoDHT = true;
 
@@ -439,7 +440,7 @@ void setup_Sensores() {
 	Serial.println("");
 	Serial.print("bmp180 ");
 	Serial.print( bmp180.readTemperature());
-	Serial.print("ºC ");
+	Serial.print("C� ");
 	Serial.print( bmp180.readPressure());
 	Serial.println("Pa ");
 	//  bmp180.startPressure(3);
@@ -498,11 +499,11 @@ void loop1() {
 	Serial.print(h);
 	Serial.print(F("%  Temperature: "));
 	Serial.print(t);
-	Serial.print(F("ºC "));
+	Serial.print(F("�C "));
 	Serial.print(f);
-	Serial.print(F("ºF  Heat index: "));
+	Serial.print(F("�F  Heat index: "));
 	Serial.print(hic);
-	Serial.print(F("ºC "));
+	Serial.print(F("�C "));
 	Serial.print(hif);
-	Serial.println(F("ºF"));
+	Serial.println(F("�F"));
 }
